@@ -1,19 +1,36 @@
-package com.tours.Dto;
+package com.tours.Entities;
 
-public class LocationDto {
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
 
+@Entity
+public class Location {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String fromLocation;
+
+    @Column(nullable = false)
     private String toLocation;
+
+    @Column(nullable = false)
     private double distance;
+
     private String description;
+
     private String estimatedTravelTime;
 
-    public LocationDto() {
+    // Constructors
+    public Location() {
     }
 
-    public LocationDto(Long id, String fromLocation, String toLocation, double distance, String description, String estimatedTravelTime) {
-        this.id = id;
+    public Location(String fromLocation, String toLocation, double distance, String description, String estimatedTravelTime) {
         this.fromLocation = fromLocation;
         this.toLocation = toLocation;
         this.distance = distance;
@@ -22,7 +39,6 @@ public class LocationDto {
     }
 
     // Getters and Setters
-
     public Long getId() {
         return id;
     }

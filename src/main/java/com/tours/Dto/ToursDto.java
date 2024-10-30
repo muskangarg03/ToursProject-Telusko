@@ -1,47 +1,23 @@
-package com.tours.Entities;
+package com.tours.Dto;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity
-public class Tours {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ToursDto {
     private Long id;
-
-    @Column(nullable = false)
     private String tourName;
-
-    @Column(nullable = false, length = 2000)
     private String tourDescription;
-
     private String tourGuide;
-
     private LocalDate startDate;
-
     private LocalDate endDate;
-
-    @ElementCollection
     private List<String> meals;
-
-    @ElementCollection
     private List<String> activities;
-
     private double price;
-
     private int ticketsAvailable;
+    private List<String> tourImages;
 
-    @ElementCollection
-    private List<String> tourImages; // Store paths or URLs of images
 
-    // Default Constructor
-    public Tours() {
-    }
-
-    // Parameterized Constructor
-    public Tours(Long id, String tourName, String tourDescription, String tourGuide, LocalDate startDate, LocalDate endDate, List<String> meals, List<String> activities, double price, int ticketsAvailable, List<String> tourImages) {
+    public ToursDto(Long id, String tourName, String tourDescription, String tourGuide, LocalDate startDate, LocalDate endDate, List<String> meals, List<String> activities, double price, int ticketsAvailable, List<String> tourImages) {
         this.id = id;
         this.tourName = tourName;
         this.tourDescription = tourDescription;
@@ -55,8 +31,11 @@ public class Tours {
         this.tourImages = tourImages;
     }
 
-    // Getters and Setters
+    public ToursDto() {
 
+    }
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
