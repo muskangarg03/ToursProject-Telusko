@@ -8,7 +8,7 @@ public class TeluskoToursProjectApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(TeluskoToursProjectApplication.class, args);
-		System.out.println("Hello......");
+		System.out.println("Hello....git ..");
 	}
 
 }
