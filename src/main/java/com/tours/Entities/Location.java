@@ -1,10 +1,6 @@
 package com.tours.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 
 @Entity
 public class Location {
@@ -26,6 +22,10 @@ public class Location {
 
     private String estimatedTravelTime;
 
+    @ManyToOne
+    @JoinColumn(name = "tours_id") // Foreign key to the Tours entity
+    private Tours tours;
+
     // Constructors
     public Location() {
     }
@@ -38,7 +38,7 @@ public class Location {
         this.estimatedTravelTime = estimatedTravelTime;
     }
 
-    // Getters and Setters
+    // Getters and Setters for all fields, including tours
     public Long getId() {
         return id;
     }
@@ -85,5 +85,13 @@ public class Location {
 
     public void setEstimatedTravelTime(String estimatedTravelTime) {
         this.estimatedTravelTime = estimatedTravelTime;
+    }
+
+    public Tours getTours() {
+        return tours;
+    }
+
+    public void setTours(Tours tours) {
+        this.tours = tours;
     }
 }

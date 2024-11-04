@@ -1,10 +1,6 @@
 package com.tours.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 
 @Entity
 public class Transport {
@@ -22,6 +18,10 @@ public class Transport {
     private String estimatedTravelTime;
 
     private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "tours_id") // Foreign key to the Tours entity
+    private Tours tours;
 
     // Constructors
     public Transport() {
@@ -73,5 +73,13 @@ public class Transport {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Tours getTours() {
+        return tours;
+    }
+
+    public void setTours(Tours tours) {
+        this.tours = tours;
     }
 }
