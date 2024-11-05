@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -30,12 +31,18 @@ public class Tours {
     private Integer ticketsAvailable;
 
     @ElementCollection
+    @CollectionTable(name = "tour_meals", joinColumns = @JoinColumn(name = "tour_id"))
+    @Column(name = "meal")
     private List<String> meals;
 
     @ElementCollection
+    @CollectionTable(name = "tour_activities", joinColumns = @JoinColumn(name = "tour_id"))
+    @Column(name = "activity")
     private List<String> activities;
 
     @ElementCollection
+    @CollectionTable(name = "tour_images", joinColumns = @JoinColumn(name = "tour_id"))
+    @Column(name = "image")
     private List<String> tourImages;
 
     // Embedded Location information
@@ -58,6 +65,3 @@ public class Tours {
     private String transportEstimatedTravelTime;
     private String transportDescription;
 }
-
-
-
