@@ -18,6 +18,27 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
+    // Handle LocationNotFoundException
+    @ExceptionHandler(LocationNotFoundException.class)
+    public ResponseEntity<ErrorDetails> handleLocationNotFoundException(LocationNotFoundException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+    }
+
+    // Handle LodgingNotFoundException
+    @ExceptionHandler(LodgingNotFoundException.class)
+    public ResponseEntity<ErrorDetails> handleLodgingNotFoundException(LodgingNotFoundException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+    }
+
+    // Handle TransportNotFoundException
+    @ExceptionHandler(TransportNotFoundException.class)
+    public ResponseEntity<ErrorDetails> handleTransportNotFoundException(TransportNotFoundException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+    }
+
     // Handle InvalidTourDataException
     @ExceptionHandler(InvalidTourDataException.class)
     public ResponseEntity<ErrorDetails> handleInvalidTourDataException(InvalidTourDataException ex, WebRequest request) {

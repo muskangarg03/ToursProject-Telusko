@@ -2,9 +2,17 @@ package com.tours.Entities;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "locations")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Location {
 
     @Id
@@ -19,51 +27,5 @@ public class Location {
 
 
     // Getters and setters
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFromLocation() {
-        return fromLocation;
-    }
-
-    public void setFromLocation(String fromLocation) {
-        this.fromLocation = fromLocation;
-    }
-
-    public String getToLocation() {
-        return toLocation;
-    }
-
-    public void setToLocation(String toLocation) {
-        this.toLocation = toLocation;
-    }
-
-    public Double getDistance() {
-        return distance;
-    }
-
-    public void setDistance(Double distance) {
-        this.distance = distance;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getEstimatedTravelTime() {
-        return estimatedTravelTime;
-    }
-
-    public void setEstimatedTravelTime(String estimatedTravelTime) {
-        this.estimatedTravelTime = estimatedTravelTime;
-    }
 }

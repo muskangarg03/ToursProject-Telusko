@@ -17,7 +17,7 @@ public class TeluskoToursProjectApplication {
 
 	private static void clearLogFile(String logFilePath) {
 		try (FileWriter fileWriter = new FileWriter(logFilePath, false)) {
-			fileWriter.write(""); // Clear contents
+			fileWriter.write("");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

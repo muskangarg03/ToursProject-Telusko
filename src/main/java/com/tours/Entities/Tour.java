@@ -2,13 +2,19 @@ package com.tours.Entities;
 
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
+
 @Entity
 @Table(name = "tour")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Tour {
 
     @Id
@@ -57,117 +63,7 @@ public class Tour {
 
 
     // Getters and setters
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTourName() {
-        return tourName;
-    }
-
-    public void setTourName(String tourName) {
-        this.tourName = tourName;
-    }
-
-    public String getTourDescription() {
-        return tourDescription;
-    }
-
-    public void setTourDescription(String tourDescription) {
-        this.tourDescription = tourDescription;
-    }
-
-    public String getTourGuide() {
-        return tourGuide;
-    }
-
-    public void setTourGuide(String tourGuide) {
-        this.tourGuide = tourGuide;
-    }
-
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public List<String> getMeals() {
-        return meals;
-    }
-
-    public void setMeals(List<String> meals) {
-        this.meals = meals;
-    }
-
-    public List<String> getActivities() {
-        return activities;
-    }
-
-    public void setActivities(List<String> activities) {
-        this.activities = activities;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public Integer getTicketsAvailable() {
-        return ticketsAvailable;
-    }
-
-    public void setTicketsAvailable(Integer ticketsAvailable) {
-        this.ticketsAvailable = ticketsAvailable;
-    }
-
-    public List<String> getTourImages() {
-        return tourImages;
-    }
-
-    public void setTourImages(List<String> tourImages) {
-        this.tourImages = tourImages;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Lodging getLodging() {
-        return lodging;
-    }
-
-    public void setLodging(Lodging lodging) {
-        this.lodging = lodging;
-    }
-
-    public Transport getTransport() {
-        return transport;
-    }
-
-    public void setTransport(Transport transport) {
-        this.transport = transport;
-    }
 }
 
 
