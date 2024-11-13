@@ -39,7 +39,7 @@ public class TransportService {
         // Update transport details
         transport.setTransportName(transportDetails.getTransportName());
         transport.setTransportType(transportDetails.getTransportType());
-        transport.setDescription(transportDetails.getDescription());
+        transport.setTransportDescription(transportDetails.getTransportDescription());
         transport.setEstimatedTravelTime(transportDetails.getEstimatedTravelTime());
 
         return transportRepository.save(transport);

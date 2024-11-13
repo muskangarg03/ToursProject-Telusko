@@ -39,7 +39,7 @@ public class LodgingService {
         // Update Lodging details
         lodging.setLodgingName(lodgingDetails.getLodgingName());
         lodging.setLodgingType(lodgingDetails.getLodgingType());
-        lodging.setDescription(lodgingDetails.getDescription());
+        lodging.setLodgingDescription(lodgingDetails.getLodgingDescription());
         lodging.setAddress(lodgingDetails.getAddress());
         lodging.setRating(lodgingDetails.getRating());
 

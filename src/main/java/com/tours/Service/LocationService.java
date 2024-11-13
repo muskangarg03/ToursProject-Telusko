@@ -43,7 +43,7 @@ public class LocationService {
         location.setFromLocation(locationDetails.getFromLocation());
         location.setToLocation(locationDetails.getToLocation());
         location.setDistance(locationDetails.getDistance());
-        location.setDescription(locationDetails.getDescription());
+        location.setLocationDescription(locationDetails.getLocationDescription());
         location.setEstimatedTravelTime(locationDetails.getEstimatedTravelTime());
 
         return locationRepository.save(location);
