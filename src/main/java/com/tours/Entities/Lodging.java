@@ -21,7 +21,7 @@ public class Lodging {
 
     private String lodgingName;
     private String lodgingType;
-    private String description;
+    private String lodgingDescription;
     private String address;
     private Double rating;
 

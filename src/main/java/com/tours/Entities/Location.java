@@ -22,7 +22,7 @@ public class Location {
     private String fromLocation;
     private String toLocation;
     private Double distance;
-    private String description;
+    private String locationDescription;
     private String estimatedTravelTime;
 
 

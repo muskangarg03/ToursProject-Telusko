@@ -22,7 +22,7 @@ public class Transport {
     private String transportName;
     private String transportType;
     private String estimatedTravelTime;
-    private String description;
+    private String transportDescription;
 
     //Getters and Setters
 }
