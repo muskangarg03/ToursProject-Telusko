@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="User")
-public class User {
+@Table(name="users")
+public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
