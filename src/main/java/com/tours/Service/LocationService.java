@@ -9,33 +9,45 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class LocationService {
+
+    private static final Logger logger = Logger.getLogger(LocationService.class.getName());
 
     @Autowired
     private LocationRepo locationRepository;
 
     // Add a new location
     public Location addLocation(Location location) {
-        return locationRepository.save(location);
+        logger.info("Adding a new location with details: " + location);
+        Location savedLocation = locationRepository.save(location);
+        logger.info("Location added successfully with ID: " + savedLocation.getId());
+        return savedLocation;
     }
 
     // Get location by ID
     public Optional<Location> getLocationById(Long id) {
-        return Optional.ofNullable(locationRepository.findById(id)
+        logger.info("Fetching location with ID: " + id);
+        Optional<Location> location = Optional.ofNullable(locationRepository.findById(id)
                 .orElseThrow(() -> new LocationNotFoundException("Location not found with id " + id)));
+        logger.info("Location fetched successfully: " + location);
+        return location;
     }
 
     // Get all locations
     public List<Location> getAllLocations() {
-        return locationRepository.findAll();
+        logger.info("Fetching all locations");
+        List<Location> locations = locationRepository.findAll();
+        logger.info("Fetched " + locations.size() + " locations");
+        return locations;
     }
 
     // Update location
     @Transactional
     public Location updateLocation(Long id, Location locationDetails) {
-        // Fetch the existing location or throw LocationNotFoundException
+        logger.info("Updating location with ID: " + id);
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new LocationNotFoundException("Location not found with id " + id));
 
@@ -46,15 +58,18 @@ public class LocationService {
         location.setLocationDescription(locationDetails.getLocationDescription());
         location.setEstimatedTravelTime(locationDetails.getEstimatedTravelTime());
 
-        return locationRepository.save(location);
+        Location updatedLocation = locationRepository.save(location);
+        logger.info("Location updated successfully: " + updatedLocation);
+        return updatedLocation;
     }
 
     // Delete location
     public void deleteLocation(Long id) {
-        // Check if the Location exists before deleting
+        logger.info("Deleting location with ID: " + id);
         locationRepository.findById(id)
                 .orElseThrow(() -> new LocationNotFoundException("Location not found with id " + id));
 
         locationRepository.deleteById(id);
+        logger.info("Location deleted successfully with ID: " + id);
     }
 }

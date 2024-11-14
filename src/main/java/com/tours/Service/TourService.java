@@ -18,9 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class TourService {
+
+    private static final Logger logger = Logger.getLogger(TourService.class.getName());
 
     @Autowired
     private TourRepo tourRepo;
@@ -45,7 +48,8 @@ public class TourService {
 
     // Save a new tour
     public Tour saveTour(Tour tour, Long locationId, Long lodgingId, Long transportId) {
-        // Fetch Location, Lodging, and Transport by their IDs
+        logger.info("Saving a new tour with ID: " + tour.getId());
+
         Location location = locationRepo.findById(locationId)
                 .orElseThrow(() -> new LocationNotFoundException("Location not found with id " + locationId));
         Lodging lodging = lodgingRepo.findById(lodgingId)
@@ -53,22 +57,24 @@ public class TourService {
         Transport transport = transportRepo.findById(transportId)
                 .orElseThrow(() -> new TransportNotFoundException("Transport not found with id " + transportId));
 
-        // Set the fetched entities in the Tour object
         tour.setLocation(location);
         tour.setLodging(lodging);
         tour.setTransport(transport);
 
-        // Save the Tour with the related entities
-        return tourRepo.save(tour);
+        Tour savedTour = tourRepo.save(tour);
+        logger.info("Tour saved successfully with ID: " + savedTour.getId());
+        return savedTour;
     }
 
     // Get all tours with their details
     public List<Tour> getAllToursWithDetails() {
+        logger.info("Fetching all tours with details.");
         return tourRepo.findAllToursWithDetails();
     }
 
     // Get a tour by its ID
     public Optional<Tour> getTourById(Long id) {
+        logger.info("Fetching tour with ID: " + id);
         return Optional.ofNullable(tourRepo.findById(id)
                 .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id)));
     }
@@ -76,57 +82,56 @@ public class TourService {
     // Delete a tour by its ID with associated location, lodging, and transport
     @Transactional
     public void deleteTour(Long id) {
+        logger.info("Deleting tour with ID: " + id);
         Tour tour = tourRepo.findById(id)
                 .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id));
 
-        // First delete associated entities using their respective services
+        // Delete associated entities if they exist
         if (tour.getLocation() != null) {
             Long locationId = tour.getLocation().getId();
-            tour.setLocation(null); // Remove the reference from tour
-            locationService.deleteLocation(locationId); // Delete location
+            locationService.deleteLocation(locationId);
+            logger.info("Associated location deleted with ID: " + locationId);
         }
 
         if (tour.getLodging() != null) {
             Long lodgingId = tour.getLodging().getId();
-            tour.setLodging(null);
             lodgingService.deleteLodging(lodgingId);
+            logger.info("Associated lodging deleted with ID: " + lodgingId);
         }
 
         if (tour.getTransport() != null) {
             Long transportId = tour.getTransport().getId();
-            tour.setTransport(null);
             transportService.deleteTransport(transportId);
+            logger.info("Associated transport deleted with ID: " + transportId);
         }
 
-        // Finally delete the tour
         tourRepo.delete(tour);
+        logger.info("Tour deleted successfully with ID: " + id);
     }
 
     // Update a tour with associations
     @Transactional
     public Tour updateTourWithAssociations(Long tourId, Tour updatedTour) {
+        logger.info("Updating tour with ID: " + tourId);
         Tour existingTour = tourRepo.findById(tourId)
                 .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + tourId));
 
-        // Update Location
-        Location updatedLocation = updatedTour.getLocation();
-        if (existingTour.getLocation() != null && updatedLocation != null) {
-            locationService.updateLocation(existingTour.getLocation().getId(), updatedLocation);
+        // Update Location if necessary
+        if (updatedTour.getLocation() != null) {
+            locationService.updateLocation(existingTour.getLocation().getId(), updatedTour.getLocation());
         }
 
-        // Update Lodging
-        Lodging updatedLodging = updatedTour.getLodging();
-        if (existingTour.getLodging() != null && updatedLodging != null) {
-            lodgingService.updateLodging(existingTour.getLodging().getId(), updatedLodging);
+        // Update Lodging if necessary
+        if (updatedTour.getLodging() != null) {
+            lodgingService.updateLodging(existingTour.getLodging().getId(), updatedTour.getLodging());
         }
 
-        // Update Transport
-        Transport updatedTransport = updatedTour.getTransport();
-        if (existingTour.getTransport() != null && updatedTransport != null) {
-            transportService.updateTransport(existingTour.getTransport().getId(), updatedTransport);
+        // Update Transport if necessary
+        if (updatedTour.getTransport() != null) {
+            transportService.updateTransport(existingTour.getTransport().getId(), updatedTour.getTransport());
         }
 
-        // Update Tour details
+        // Update other tour details
         existingTour.setTourName(updatedTour.getTourName());
         existingTour.setTourDescription(updatedTour.getTourDescription());
         existingTour.setTourGuide(updatedTour.getTourGuide());
@@ -138,6 +143,8 @@ public class TourService {
         existingTour.setTicketsAvailable(updatedTour.getTicketsAvailable());
         existingTour.setTourImages(updatedTour.getTourImages());
 
-        return tourRepo.save(existingTour);
+        Tour savedTour = tourRepo.save(existingTour);
+        logger.info("Tour updated successfully with ID: " + savedTour.getId());
+        return savedTour;
     }
 }

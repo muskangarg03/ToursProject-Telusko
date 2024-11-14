@@ -7,32 +7,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 public class TransportService {
+
+    private static final Logger logger = Logger.getLogger(TransportService.class.getName());
 
     @Autowired
     private TransportRepo transportRepository;
 
     // Add a new transport
     public Transport addTransport(Transport transport) {
-        return transportRepository.save(transport);
+        logger.info("Adding a new transport with details: " + transport);
+        Transport savedTransport = transportRepository.save(transport);
+        logger.info("Transport added successfully with ID: " + savedTransport.getId());
+        return savedTransport;
     }
 
     // Get transport by ID
     public Transport getTransportById(Long id) {
-        return transportRepository.findById(id)
+        logger.info("Fetching transport with ID: " + id);
+        Transport transport = transportRepository.findById(id)
                 .orElseThrow(() -> new TransportNotFoundException("Transport not found with id " + id));
+        logger.info("Transport fetched successfully: " + transport);
+        return transport;
     }
 
     // Get all transports
     public List<Transport> getAllTransports() {
-        return transportRepository.findAll();
+        logger.info("Fetching all transports");
+        List<Transport> transports = transportRepository.findAll();
+        logger.info("Fetched " + transports.size() + " transports");
+        return transports;
     }
 
     // Update transport
     public Transport updateTransport(Long id, Transport transportDetails) {
-        // Fetch the existing transport or throw TransportNotFoundException
+        logger.info("Updating transport with ID: " + id);
         Transport transport = transportRepository.findById(id)
                 .orElseThrow(() -> new TransportNotFoundException("Transport not found with id " + id));
 
@@ -42,15 +54,18 @@ public class TransportService {
         transport.setTransportDescription(transportDetails.getTransportDescription());
         transport.setEstimatedTravelTime(transportDetails.getEstimatedTravelTime());
 
-        return transportRepository.save(transport);
+        Transport updatedTransport = transportRepository.save(transport);
+        logger.info("Transport updated successfully: " + updatedTransport);
+        return updatedTransport;
     }
 
     // Delete transport
     public void deleteTransport(Long id) {
-        // Check if the Transport exists before deleting
+        logger.info("Deleting transport with ID: " + id);
         transportRepository.findById(id)
                 .orElseThrow(() -> new TransportNotFoundException("Transport not found with id " + id));
 
         transportRepository.deleteById(id);
+        logger.info("Transport deleted successfully with ID: " + id);
     }
 }
