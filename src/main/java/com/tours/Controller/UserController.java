@@ -2,6 +2,7 @@ package com.tours.Controller;
 
 import com.tours.Entities.Users;
 import com.tours.Service.UserService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,13 +48,31 @@ public class UserController {
     }
 
 
-    @PostMapping("/login")
-    public ResponseEntity<Users> loginUser(@RequestBody Users loginUser) {
-        Users authenticatedUser = userService.login(loginUser.getEmail(), loginUser.getPassword());
-        if (authenticatedUser != null) {
-            return ResponseEntity.ok(authenticatedUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
+
+//    @PostMapping("/login")
+//    public ResponseEntity<String> loginUser(@RequestBody Users loginUser) {
+//        Users authenticatedUser = userService.login(loginUser.getEmail(), loginUser.getPassword());
+//        if (authenticatedUser != null) {
+//            return ResponseEntity.ok("Login successful! Welcome " + authenticatedUser.getName());
+//        } else {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+//        }
+//    }
+@PostMapping("/login")
+public ResponseEntity<String> loginUser(@RequestBody Users loginUser, HttpSession session) {
+    Users authenticatedUser = userService.login(loginUser.getEmail(), loginUser.getPassword());
+
+    if (authenticatedUser != null) {
+        session.setAttribute("loggedInUser", authenticatedUser); // Store user in session
+        return ResponseEntity.ok("Login successful!" + authenticatedUser.getName());
+    } else {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    }
+}
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logoutUser(HttpSession session) {
+        session.invalidate(); // Invalidate session to log the user out
+        return ResponseEntity.ok("Logged out successfully.");
     }
 }
