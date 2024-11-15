@@ -18,7 +18,9 @@ public class UserService {
     public void register(Users user) throws Exception {
         logger.info("Trying to register user with email: " + user.getEmail());
 
-        user.setRole("CUSTOMER"); // Default role for new user
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("CUSTOMER");   //default role for new user
+        }
 
         // Check if email already exists
         if (userRepository.existsByEmail(user.getEmail())) {
