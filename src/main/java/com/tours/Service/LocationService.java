@@ -54,6 +54,7 @@ public class LocationService {
         // Update location details
         location.setFromLocation(locationDetails.getFromLocation());
         location.setToLocation(locationDetails.getToLocation());
+        location.setCountry(locationDetails.getCountry());
         location.setDistance(locationDetails.getDistance());
         location.setLocationDescription(locationDetails.getLocationDescription());
         location.setEstimatedTravelTime(locationDetails.getEstimatedTravelTime());

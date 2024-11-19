@@ -21,6 +21,7 @@ public class Location {
 
     private String fromLocation;
     private String toLocation;
+    private String country;
     private Double distance;
     private String locationDescription;
     private String estimatedTravelTime;
