@@ -1,12 +1,16 @@
+
 package com.tours.Config;
 
+import com.tours.Service.CustomOAuth2UserService;
 import com.tours.Service.CustomUserDetailsService;
+import com.tours.Service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -22,13 +27,21 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
-
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
     private JwtFilter jwtFilter;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+
+    @Autowired
+    private OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -53,47 +66,87 @@ public class SecurityConfig {
         return provider;
     }
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//                .csrf(customizer -> customizer.disable())
+//                .authorizeHttpRequests(request -> request
+//                        .requestMatchers("/auth/signup", "/auth/login", "/auth/oauth2/login").permitAll()
+//                        .requestMatchers("/auth/admin/**", "/admin/**").hasRole("ADMIN")
+//                        .requestMatchers("/auth/customer/**", "/customer/**").hasRole("CUSTOMER")
+//                        .anyRequest().authenticated())
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .logout(logout -> logout
+//                        .logoutUrl("/auth/logout")
+//                        .logoutSuccessHandler((request, response, authentication) -> {
+//                            String token = request.getHeader("Authorization");
+//                            if (token != null && token.startsWith("Bearer ")) {
+//                                token = token.substring(7);
+//                                JwtFilter.addToBlacklist(token);
+//                            }
+//                            response.setStatus(HttpServletResponse.SC_OK);
+//                            response.getWriter().write("{\"message\":\"Logout Successful\"}");
+//                            response.getWriter().flush();
+//                        }))
+//                .oauth2Login(oauth2 -> oauth2
+//                        .loginPage("/login")
+//                        .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorization"))
+//                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*"))
+//                        .successHandler((request, response, authentication) -> {
+//                            OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+//                            String email = oauthUser.getAttribute("email");
+//                            String token = jwtService.generateToken(email);
+//
+//                            // Redirect with token or handle as needed
+//                            response.sendRedirect("/login?token=" + token);
+//                        })
+//                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+//                );
+
+//        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // Disable CSRF if you are using stateless authentication like JWT
                 .csrf(customizer -> customizer.disable())
-                // Configure HTTP request authorization
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/signup", "/auth/login").permitAll()
+                        .requestMatchers("/auth/signup", "/auth/login", "/oauth2/**","/login",
+                                "/error").permitAll()
                         .requestMatchers("/auth/admin/**", "/admin/**").hasRole("ADMIN")
                         .requestMatchers("/auth/customer/**", "/customer/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated())
-                // Configure session management
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService))
+                        .successHandler(oauth2LoginSuccessHandler))
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless sessions (no session persistence)
-                // Configure logout functionality
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
                             String token = request.getHeader("Authorization");
                             if (token != null && token.startsWith("Bearer ")) {
-                                token = token.substring(7); // Extract the token
-                                JwtFilter.addToBlacklist(token); // Add token to blacklist
+                                token = token.substring(7);
+                                JwtFilter.addToBlacklist(token);
                             }
                             response.setStatus(HttpServletResponse.SC_OK);
-                            response.getWriter().write("Logout Successful");
-                        })
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID", "YOUR_JWT_COOKIE_NAME"));
-
-        // Add the JWT filter to the security filter chain
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+                            response.getWriter().write("{\"message\":\"Logout Successful\"}");
+                            response.getWriter().flush();
+                        }))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Add your frontend URL
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Replace with your frontend URL
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
         configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
@@ -103,6 +156,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-
 }

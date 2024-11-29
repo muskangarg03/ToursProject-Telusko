@@ -31,6 +31,11 @@ public class Users {
     @NotBlank(message ="This is required !!")
     @Size(min=5, message ="Password must be at least 5 characters long!!")
     private String password;
+
+    @Pattern(regexp = "^[0-9]{10}$", message = "Contact number must be a valid 10-digit number!!")
+    @Column(unique = true)
+    private String contactNumber;
+
     private String role; // ROLE_ADMIN or ROLE_CUSTOMER
     private boolean enabled;
 
