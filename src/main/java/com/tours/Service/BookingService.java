@@ -85,68 +85,16 @@ public class BookingService {
         }
 
 
-//    // Get ticket summary per tour
-//    public List<Map<String, Object>> getTicketSummaryPerTour() {
-//        List<Tour> tours = tourRepository.findAll();
-//
-//        List<Map<String, Object>> summary = tours.stream().map(tour -> {
-//            int ticketsSold = bookingRepository.countTicketsSoldForTour(tour.getId());
-//            Map<String, Object> tourSummary = new HashMap<>(); // Use HashMap
-//            tourSummary.put("tourId", tour.getId());
-//            tourSummary.put("tourName", tour.getTourName());
-//            tourSummary.put("ticketsSold", ticketsSold);
-//            tourSummary.put("ticketsAvailable", tour.getTicketsAvailable());
-//            tourSummary.put("totalRevenue", ticketsSold * tour.getPrice());
-//            return tourSummary;
-//        }).toList();
-//
-//        return summary;
-//    }
-//
-//
-//    // Get detailed booking and customer data for a specific tour
-//    public Map<String, Object> getTourDetailsWithBookings(Long tourId) {
-//        Optional<Tour> optionalTour = tourRepository.findById(tourId);
-//        if (optionalTour.isPresent()) {
-//            Tour tour = optionalTour.get();
-//            List<Booking> bookings = bookingRepository.findByTourId(tourId);
-//            int ticketsSold = bookingRepository.countTicketsSoldForTour(tour.getId());
-//
-//            List<Map<String, Object>> bookingDetails = bookings.stream().map(booking -> {
-//                Map<String, Object> bookingInfo = new HashMap<>(); // Use HashMap
-//                bookingInfo.put("bookingId", booking.getBookingId());
-//                bookingInfo.put("customerName", booking.getCustomer().getName());
-//                bookingInfo.put("customerEmail", booking.getCustomer().getEmail());
-//                bookingInfo.put("numberOfTickets", booking.getNumberOfTickets());
-//                bookingInfo.put("totalPrice", booking.getTotalPrice());
-//                bookingInfo.put("bookingDate", booking.getBookingDate());
-//                bookingInfo.put("paymentStatus", booking.getPaymentStatus());
-//                return bookingInfo;
-//            }).toList();
-//
-//            Map<String, Object> tourDetails = new HashMap<>(); // Use HashMap
-//            tourDetails.put("tourId", tour.getId());
-//            tourDetails.put("tourName", tour.getTourName());
-//            tourDetails.put("tourDescription", tour.getTourDescription());
-//            tourDetails.put("ticketsSold", ticketsSold);
-//            tourDetails.put("bookings", bookingDetails);
-//
-//            return tourDetails;
-//        } else {
-//            return null;
-//        }
-//    }
-
     // Get ticket summary per tour (only considering successful payments)
     public List<Map<String, Object>> getTicketSummaryPerTour() {
         List<Tour> tours = tourRepository.findAll();
 
         List<Map<String, Object>> summary = tours.stream().map(tour -> {
             // Count tickets only for bookings with successful payment
-            int ticketsSold = bookingRepository.countTicketsSoldForTourWithSuccessfulPayment(
-                    tour.getId(),
-                    Booking.PaymentStatus.SUCCESS
-            );
+            int ticketsSold = Optional.ofNullable(
+                    bookingRepository.countTicketsSoldForTourWithSuccessfulPayment(tour.getId(),
+                            Booking.PaymentStatus.SUCCESS)
+            ).orElse(0);
 
             Map<String, Object> tourSummary = new HashMap<>();
             tourSummary.put("tourId", tour.getId());
@@ -171,12 +119,10 @@ public class BookingService {
                     tourId,
                     Booking.PaymentStatus.SUCCESS
             );
-
-            // Count tickets only for successful bookings
-            int ticketsSold = bookingRepository.countTicketsSoldForTourWithSuccessfulPayment(
-                    tour.getId(),
-                    Booking.PaymentStatus.SUCCESS
-            );
+            int ticketsSold = Optional.ofNullable(
+                    bookingRepository.countTicketsSoldForTourWithSuccessfulPayment(tour.getId(),
+                            Booking.PaymentStatus.SUCCESS)
+            ).orElse(0);
 
             List<Map<String, Object>> bookingDetails = bookings.stream().map(booking -> {
                 Map<String, Object> bookingInfo = new HashMap<>();
@@ -202,6 +148,22 @@ public class BookingService {
             return null;
         }
     }
+
+
+    // Method to filter tours based on criteria
+    public List<Tour> filterTours(String country, String lodgingType, String transportType, Double minPrice, Double maxPrice) {
+        return bookingRepository.filterTours(country, lodgingType, transportType, minPrice, maxPrice);
+    }
+
+
+    // Method to search tours based on a search term
+//    public List<Tour> searchTours(String searchTerm) {
+//        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+//            return tourRepository.findAll(); // Return all tours if no search term
+//        }
+//        return bookingRepository.searchTours(searchTerm.trim());
+//    }
+
 
 }
 

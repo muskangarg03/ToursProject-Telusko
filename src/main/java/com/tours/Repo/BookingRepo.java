@@ -2,6 +2,7 @@ package com.tours.Repo;
 
 
 import com.tours.Entities.Booking;
+import com.tours.Entities.Tour;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,4 +26,28 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
 
     // Fetch bookings for a specific tour with successful payment status
     List<Booking> findByTourIdAndPaymentStatus(Long tourId, Booking.PaymentStatus paymentStatus);
+
+
+
+    // Filter tours by location, lodging, transport, and price range
+    @Query("SELECT t FROM Tour t WHERE " +
+            "(:country IS NULL OR t.location.country = :country) AND " +
+            "(:lodgingType IS NULL OR t.lodging.lodgingType = :lodgingType) AND " +
+            "(:transportType IS NULL OR t.transport.transportType = :transportType) AND " +
+            "(:minPrice IS NULL OR t.price >= :minPrice) AND " +
+            "(:maxPrice IS NULL OR t.price <= :maxPrice)")
+    List<Tour> filterTours(@Param("country") String location,
+                           @Param("lodgingType") String lodgingType,
+                           @Param("transportType") String transportType,
+                           @Param("minPrice") Double minPrice,
+                           @Param("maxPrice") Double maxPrice);
+
+
+    //Search Tours Based on TourName and TourDescription
+//    @Query("SELECT DISTINCT t FROM Tour t " +
+//            "WHERE (:searchTerm IS NULL OR " +
+//            "LOWER(t.tourName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+//            "LOWER(t.tourDescription) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+//    List<Tour> searchTours(@Param("searchTerm") String searchTerm);
+
 }

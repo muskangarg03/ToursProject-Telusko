@@ -5,6 +5,7 @@ package com.tours.Controller;
 import com.tours.Entities.Booking;
 import com.tours.Entities.Tour;
 import com.tours.Entities.Users;
+import com.tours.Repo.TourRepo;
 import com.tours.Repo.UserRepo;
 import com.tours.Service.BookingService;
 import com.tours.Service.TourService;
@@ -32,6 +33,9 @@ public class BookingController {
 
     @Autowired
     private UserRepo userRepo;  // Assuming you have a repository for Users
+
+    @Autowired
+    private TourRepo tourRepository;
 
     // Common method to get the logged-in user
     private Users getLoggedInUser() {
@@ -113,6 +117,52 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
     }
+
+    //Filter Tours Based on Country, LodgingType, TransportType, MixPrice and MaxPrice
+    @GetMapping("customer/filterTours")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<?> filterTours(
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String lodgingType,
+            @RequestParam(required = false) String transportType,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice) {
+
+        // Fetch logged-in user (ensure this method is defined properly)
+        Users loggedInUser = getLoggedInUser();
+        if (loggedInUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not logged in.");
+        }
+
+        // Call the bookingService's filterTours method
+        List<Tour> filteredTours = bookingService.filterTours(country, lodgingType, transportType, minPrice, maxPrice);
+
+        // Check if any tours are found
+        if (filteredTours.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "No tours found matching the specified criteria."));
+        }
+
+        // Return the filtered tours in the response
+        return ResponseEntity.ok(Map.of(
+                "message", "Filtered tours fetched successfully.",
+                "filteredTours", filteredTours
+        ));
+    }
+
+    // Search Tours Endpoint
+//    @GetMapping("customer/searchTours")
+//    @PreAuthorize("hasRole('CUSTOMER')")
+//    public List<Tour> searchTours(String searchTerm) {
+//        System.out.println("Search Term: " + searchTerm); // Debugging print
+//        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+//            return tourRepository.findAll();
+//        }
+//        List<Tour> searchResults = bookingService.searchTours(searchTerm.trim());
+//        System.out.println("Number of results: " + searchResults.size()); // Debugging print
+//        return searchResults;
+//    }
+
 
 
 

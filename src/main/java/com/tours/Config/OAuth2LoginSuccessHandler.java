@@ -27,6 +27,44 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+//    @Override
+//    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+//                                        Authentication authentication) throws IOException, ServletException {
+//
+//        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+//        String email = oauth2User.getAttribute("email");
+//        String name = oauth2User.getAttribute("name");
+//        String contactNumber =oauth2User.getAttribute("contactNumber");
+//
+//        // Find or create user
+//        Users user = userRepository.findByEmail(email)
+//                .orElseGet(() -> {
+//                    Users newUser = new Users();
+//                    newUser.setEmail(email);
+//                    newUser.setName(name);
+//                    newUser.setContactNumber(contactNumber);
+//                    newUser.setRole("ROLE_CUSTOMER");
+//                    newUser.setEnabled(true);
+//
+//                    // Generate password: 01in + username (encoded)
+//                    String username = name.replaceAll("\\s+", "").toLowerCase(); // Remove spaces and convert to lowercase
+//                    String rawPassword = "01in" + username;
+//                    newUser.setPassword(passwordEncoder.encode(rawPassword));
+//
+//                    return userRepository.save(newUser);
+//                });
+//
+//        // Generate JWT token
+//        String token = jwtService.generateToken(user.getEmail());
+//
+//        // Set token in response header
+//        response.addHeader("Authorization", "Bearer " + token);
+//        response.setStatus(HttpServletResponse.SC_OK);
+//
+//
+
+//    }
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
@@ -34,7 +72,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
         String email = oauth2User.getAttribute("email");
         String name = oauth2User.getAttribute("name");
-        String contactNumber =oauth2User.getAttribute("contactNumber");
+        String contactNumber = oauth2User.getAttribute("contactNumber");
 
         // Find or create user
         Users user = userRepository.findByEmail(email)
@@ -47,7 +85,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                     newUser.setEnabled(true);
 
                     // Generate password: 01in + username (encoded)
-                    String username = name.replaceAll("\\s+", "").toLowerCase(); // Remove spaces and convert to lowercase
+                    String username = name.replaceAll("\\s+", "").toLowerCase();
                     String rawPassword = "01in" + username;
                     newUser.setPassword(passwordEncoder.encode(rawPassword));
 
@@ -57,11 +95,13 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // Generate JWT token
         String token = jwtService.generateToken(user.getEmail());
 
-        // Set token in response header
-        response.addHeader("Authorization", "Bearer " + token);
+        // Set response content type to JSON
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        // Optional: Send the token in the response body for Postman
-        response.getWriter().write("{\"token\": \"Bearer " + token + "\"}");
+        // Write token directly to response body
+       response.getWriter().write(token);
+
     }
 }
