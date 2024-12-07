@@ -1,7 +1,8 @@
-
-
 package com.tours.Controller;
 
+import com.stripe.Stripe;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import com.tours.Entities.Booking;
 import com.tours.Entities.Tour;
 import com.tours.Entities.Users;
@@ -10,20 +11,30 @@ import com.tours.Repo.UserRepo;
 import com.tours.Service.BookingService;
 import com.tours.Service.TourService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 //@RequestMapping("/customer")
 @CrossOrigin(origins = "*")
 public class BookingController {
+
+    @Value("${stripe.secret.key}")
+    private String stripeSecretKey;
 
     @Autowired
     private TourService tourService;
@@ -32,10 +43,16 @@ public class BookingController {
     private BookingService bookingService;
 
     @Autowired
-    private UserRepo userRepo;  // Assuming you have a repository for Users
+    private UserRepo userRepo;
 
     @Autowired
     private TourRepo tourRepository;
+
+    // Initialize Stripe with the secret key
+    @Autowired
+    public void init() {
+        Stripe.apiKey = stripeSecretKey;
+    }
 
     // Common method to get the logged-in user
     private Users getLoggedInUser() {
@@ -81,42 +98,44 @@ public class BookingController {
                         .body(Map.of("message", "Tour not found with ID: " + id)));
     }
 
-    // Create a booking for a customer
-    @PostMapping("customer/addBooking/{tourId}")
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> createBooking(@PathVariable Long tourId, @RequestBody Booking book) {
-        Users loggedInUser = getLoggedInUser();
-        if (loggedInUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("User is not logged in.");
-        }
+     //Create a booking for a customer
+//    @PostMapping("customer/addBooking/{tourId}")
+//    @PreAuthorize("hasRole('CUSTOMER')")
+//    public ResponseEntity<?> createBooking(@PathVariable Long tourId, @RequestBody Booking book) {
+//        Users loggedInUser = getLoggedInUser();
+//        if (loggedInUser == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                    .body("User is not logged in.");
+//        }
+//
+//        try {
+//            // Create the booking using the persisted user and tourId
+//            Booking booking = bookingService.createBooking(loggedInUser, tourId, book.getNumberOfTickets());
+//            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Booking created successfully", "booking", booking));
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+//        }
+//    }
+//
+//    //Confirm a booking with the payment transaction ID
+//    @PostMapping("customer/confirmBooking/{bookingId}")
+//    @PreAuthorize("hasRole('CUSTOMER')")
+//    public ResponseEntity<?> confirmBooking(@PathVariable Long bookingId, @RequestParam String paymentTransactionId) {
+//        Users loggedInUser = getLoggedInUser();
+//        if (loggedInUser == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                    .body("User is not logged in.");
+//        }
+//
+//        try {
+//            Booking confirmedBooking = bookingService.confirmBooking(bookingId, paymentTransactionId);
+//            return ResponseEntity.ok(Map.of("message", "Booking confirmed successfully", "booking", confirmedBooking));
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+//        }
+//    }
 
-        try {
-            // Create the booking using the persisted user and tourId
-            Booking booking = bookingService.createBooking(loggedInUser, tourId, book.getNumberOfTickets());
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Booking created successfully", "booking", booking));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
-        }
-    }
 
-    // Confirm a booking with the payment transaction ID
-    @PostMapping("customer/confirmBooking/{bookingId}")
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> confirmBooking(@PathVariable Long bookingId, @RequestParam String paymentTransactionId) {
-        Users loggedInUser = getLoggedInUser();
-        if (loggedInUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("User is not logged in.");
-        }
-
-        try {
-            Booking confirmedBooking = bookingService.confirmBooking(bookingId, paymentTransactionId);
-            return ResponseEntity.ok(Map.of("message", "Booking confirmed successfully", "booking", confirmedBooking));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
-        }
-    }
 
     //Filter Tours Based on Country, LodgingType, TransportType, MixPrice and MaxPrice
     @GetMapping("customer/filterTours")
@@ -214,4 +233,85 @@ public class BookingController {
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+    // Create Payment Intent for a booking
+    @PostMapping("customer/create-payment-intent/{tourId}")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<?> createPaymentIntent(
+            @PathVariable Long tourId,
+            @RequestParam int numberOfTickets) {
+
+        // Get logged-in user
+        Users loggedInUser = getLoggedInUser();
+        if (loggedInUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("User is not logged in.");
+        }
+
+        try {
+            // First create a preliminary booking
+            Booking preliminaryBooking = bookingService.createBooking(loggedInUser, tourId, numberOfTickets);
+
+            // Create Stripe Payment Intent
+            PaymentIntentCreateParams createParams = new PaymentIntentCreateParams.Builder()
+                    .setCurrency("usd")
+                    .setAmount(preliminaryBooking.getTotalPrice().longValue() * 100) // Convert to cents
+                    .build();
+
+            PaymentIntent paymentIntent = PaymentIntent.create(createParams);
+
+            // Return payment intent client secret and booking details
+            return ResponseEntity.ok(Map.of(
+                    "paymentIntentId", paymentIntent.getId(),
+                    "bookingId", preliminaryBooking.getBookingId(),
+                    "totalAmount", preliminaryBooking.getTotalPrice()
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // Confirm Booking after Successful Payment
+    @PostMapping("customer/confirm-payment/{bookingId}")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<?> confirmPayment(
+            @PathVariable Long bookingId,
+            @RequestParam String paymentIntentId) {
+
+        // Get logged-in user
+        Users loggedInUser = getLoggedInUser();
+        if (loggedInUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("User is not logged in.");
+        }
+
+        try {
+            // Confirm booking with payment transaction ID
+            Booking confirmedBooking = bookingService.confirmBooking(
+                    bookingId,
+                    paymentIntentId
+            );
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Booking confirmed successfully",
+                    "booking", confirmedBooking
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 }

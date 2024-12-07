@@ -122,6 +122,18 @@
 			<version>2.0.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>28.2.0-beta.1</version>
+		</dependency>
+
+		<!-- In pom.xml for Maven -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
 
 
 		<dependency>

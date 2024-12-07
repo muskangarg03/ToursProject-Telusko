@@ -66,49 +66,6 @@ public class SecurityConfig {
         return provider;
     }
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//                .csrf(customizer -> customizer.disable())
-//                .authorizeHttpRequests(request -> request
-//                        .requestMatchers("/auth/signup", "/auth/login", "/auth/oauth2/login").permitAll()
-//                        .requestMatchers("/auth/admin/**", "/admin/**").hasRole("ADMIN")
-//                        .requestMatchers("/auth/customer/**", "/customer/**").hasRole("CUSTOMER")
-//                        .anyRequest().authenticated())
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .logout(logout -> logout
-//                        .logoutUrl("/auth/logout")
-//                        .logoutSuccessHandler((request, response, authentication) -> {
-//                            String token = request.getHeader("Authorization");
-//                            if (token != null && token.startsWith("Bearer ")) {
-//                                token = token.substring(7);
-//                                JwtFilter.addToBlacklist(token);
-//                            }
-//                            response.setStatus(HttpServletResponse.SC_OK);
-//                            response.getWriter().write("{\"message\":\"Logout Successful\"}");
-//                            response.getWriter().flush();
-//                        }))
-//                .oauth2Login(oauth2 -> oauth2
-//                        .loginPage("/login")
-//                        .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorization"))
-//                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*"))
-//                        .successHandler((request, response, authentication) -> {
-//                            OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
-//                            String email = oauthUser.getAttribute("email");
-//                            String token = jwtService.generateToken(email);
-//
-//                            // Redirect with token or handle as needed
-//                            response.sendRedirect("/login?token=" + token);
-//                        })
-//                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-//                );
-
-//        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-//
-//        return http.build();
-//    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -121,7 +78,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/customer/**", "/customer/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
+//                        .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
                         .successHandler(oauth2LoginSuccessHandler))

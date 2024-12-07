@@ -1,17 +1,18 @@
 package com.tours.Service;
 
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import com.tours.Entities.Booking;
 import com.tours.Entities.Tour;
 import com.tours.Entities.Users;
 import com.tours.Repo.BookingRepo;
 import com.tours.Repo.TourRepo;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BookingService {
@@ -54,35 +55,69 @@ public class BookingService {
 
 
     // Confirm booking after payment
-    public Booking confirmBooking(Long bookingId, String paymentTransactionId) {
+//    public Booking confirmBooking(Long bookingId, String paymentTransactionId) {
+//        Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
+//        if (optionalBooking.isPresent()) {
+//            Booking booking = optionalBooking.get();
+//            Tour tour = booking.getTour();
+//
+//            // Check payment status and update availability
+//            if (booking.getPaymentStatus() == Booking.PaymentStatus.PENDING) {
+//                // Simulate payment success (you may replace this with actual gateway integration)
+//                booking.setPaymentStatus(Booking.PaymentStatus.SUCCESS);
+//                booking.confirmBooking();
+//                booking.setPaymentTransactionId(paymentTransactionId);
+//
+//                // Update ticket availability
+//                if (booking.getPaymentStatus() == Booking.PaymentStatus.SUCCESS && booking.isBookingConfirmed()) {
+//                    int ticketsAvailable = tour.getTicketsAvailable();
+//
+//                    tourRepository.save(tour); // Save updated tour
+//                    } else {
+//                        throw new RuntimeException("Not enough tickets available.");
+//                    }
+//                }
+//
+//                // Save the booking confirmation
+//                return bookingRepository.save(booking);
+//            } else {
+//                throw new RuntimeException("Payment not successful or already processed.");
+//            }
+//        }
+    @Transactional
+    public Booking confirmBooking(Long bookingId, String paymentIntentId) {
         Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
         if (optionalBooking.isPresent()) {
             Booking booking = optionalBooking.get();
             Tour tour = booking.getTour();
 
-            // Check payment status and update availability
-            if (booking.getPaymentStatus() == Booking.PaymentStatus.PENDING) {
-                // Simulate payment success (you may replace this with actual gateway integration)
-                booking.setPaymentStatus(Booking.PaymentStatus.SUCCESS);
-                booking.confirmBooking();
-                booking.setPaymentTransactionId(paymentTransactionId);
+            try {
+                // Retrieve PaymentIntent from Stripe to verify payment
+                PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
 
-                // Update ticket availability
-                if (booking.getPaymentStatus() == Booking.PaymentStatus.SUCCESS && booking.isBookingConfirmed()) {
-                    int ticketsAvailable = tour.getTicketsAvailable();
+                // Verify payment status and amount
+                if (paymentIntent.getStatus().equals("succeeded") &&
+                        paymentIntent.getAmount() == Math.round(booking.getTotalPrice() * 100)) {
 
-                    tourRepository.save(tour); // Save updated tour
-                    } else {
-                        throw new RuntimeException("Not enough tickets available.");
-                    }
+                    booking.setPaymentStatus(Booking.PaymentStatus.SUCCESS);
+                    booking.confirmBooking();
+                    booking.setPaymentTransactionId(paymentIntentId);
+
+                    // Reduce ticket availability
+                    tour.setTicketsAvailable(tour.getTicketsAvailable() - booking.getNumberOfTickets());
+                    tourRepository.save(tour);
+
+                    return bookingRepository.save(booking);
+                } else {
+                    throw new RuntimeException("Payment verification failed.");
                 }
-
-                // Save the booking confirmation
-                return bookingRepository.save(booking);
-            } else {
-                throw new RuntimeException("Payment not successful or already processed.");
+            } catch (StripeException e) {
+                throw new RuntimeException("Stripe payment verification error: " + e.getMessage());
             }
+        } else {
+            throw new RuntimeException("Booking not found.");
         }
+    }
 
 
     // Get ticket summary per tour (only considering successful payments)
