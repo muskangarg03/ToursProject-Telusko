@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { userSignUP } from "../../Redux/API/API";
 
 const SignUp = () => {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
