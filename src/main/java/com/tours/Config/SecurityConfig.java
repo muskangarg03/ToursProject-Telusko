@@ -72,7 +72,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/signup", "/auth/login", "/oauth2/**","/login",
+                        .requestMatchers("/auth/signup", "/auth/login",
                                 "/error").permitAll()
                         .requestMatchers("/auth/admin/**", "/admin/**").hasRole("ADMIN")
                         .requestMatchers("/auth/customer/**", "/customer/**").hasRole("CUSTOMER")

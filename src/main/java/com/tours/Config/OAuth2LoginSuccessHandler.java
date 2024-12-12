@@ -77,19 +77,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 //        // Write JSON response body
 //        response.getWriter().write(objectMapper.writeValueAsString(responseBody));
 
-
-        String redirectUrl;
-        if (user.getRole().equals("ROLE_ADMIN")) {
-            redirectUrl = "http://localhost:5173/admin/dashboard";
-        } else {
-            redirectUrl = "http://localhost:5173/customer/dashboard";
-        }
-
-
         // Redirect to appropriate dashboard
         //getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 
         // Build URL with token
+        String redirectUrl = "http://localhost:5173/authSuccess";
+
         String finalRedirectUrl = UriComponentsBuilder.fromUriString(redirectUrl)
                 .queryParam("token", token)
                 .build().toUriString();

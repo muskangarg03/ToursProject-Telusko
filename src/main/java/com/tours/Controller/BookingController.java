@@ -2,7 +2,9 @@ package com.tours.Controller;
 
 import com.stripe.Stripe;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.checkout.Session;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.checkout.SessionCreateParams;
 import com.tours.Entities.Booking;
 import com.tours.Entities.Tour;
 import com.tours.Entities.Users;
@@ -270,12 +272,43 @@ public class BookingController {
 
             PaymentIntent paymentIntent = PaymentIntent.create(createParams);
 
-            // Return payment intent client secret and booking details
+            // Create Stripe Checkout Session
+            SessionCreateParams checkoutParams = SessionCreateParams.builder()
+                    .setMode(SessionCreateParams.Mode.PAYMENT)
+                    .setSuccessUrl("http://localhost:5173/success?paymentIntentId=" + paymentIntent.getId() + "&bookingId=" + preliminaryBooking.getBookingId())
+                    .setCancelUrl("http://localhost:5173/cancel")
+                    .addLineItem(
+                            SessionCreateParams.LineItem.builder()
+                                    .setQuantity((long) numberOfTickets)  // Convert int to long
+                                    .setPriceData(
+                                            SessionCreateParams.LineItem.PriceData.builder()
+                                                    .setCurrency("usd")
+                                                    .setUnitAmount(preliminaryBooking.getTotalPrice().longValue() * 100)
+                                                    .setProductData(
+                                                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                                    .setName("Tour Booking")
+                                                                    .build()
+                                                    )
+                                                    .build()
+                                    )
+                                    .build()
+                    )
+                    .build();
+
+            Session checkoutSession = Session.create(checkoutParams);
+
+            // Return payment intent, checkout session, and booking details
             return ResponseEntity.ok(Map.of(
                     "paymentIntentId", paymentIntent.getId(),
+                    "checkoutSessionId", checkoutSession.getId(),
                     "bookingId", preliminaryBooking.getBookingId(),
-                    "totalAmount", preliminaryBooking.getTotalPrice()
+                    "totalAmount", preliminaryBooking.getTotalPrice(),
+                    "checkoutUrl", checkoutSession.getUrl()
             ));
+
+//            return ResponseEntity.ok(Map.of(
+//                    "redirectUrl", "http://localhost:5173/authSuccess" + paymentIntent.getId() + "&bookingId=" + preliminaryBooking.getBookingId() +"totalAmount" + preliminaryBooking.getTotalPrice()
+//            ));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -283,12 +316,15 @@ public class BookingController {
         }
     }
 
+
+
     // Confirm Booking after Successful Payment
     @PostMapping("customer/confirm-payment/{bookingId}")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> confirmPayment(
             @PathVariable Long bookingId,
             @RequestParam String paymentIntentId) {
+
 
         // Get logged-in user
         Users loggedInUser = getLoggedInUser();
@@ -299,10 +335,7 @@ public class BookingController {
 
         try {
             // Confirm booking with payment transaction ID
-            Booking confirmedBooking = bookingService.confirmBooking(
-                    bookingId,
-                    paymentIntentId
-            );
+            Booking confirmedBooking = bookingService.confirmBooking(bookingId, paymentIntentId);
 
             return ResponseEntity.ok(Map.of(
                     "message", "Booking confirmed successfully",
