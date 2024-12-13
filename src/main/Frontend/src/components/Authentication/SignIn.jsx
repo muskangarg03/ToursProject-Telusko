@@ -34,15 +34,17 @@ const SignIn = () => {
     dispatch(userLogin(credentials)).then((result) => {
       console.log(result);
 
-      if (result?.payload?.error) {
+      if (result?.payload === undefined) {
         console.log(result?.payload?.error);
         setEmail("");
-        setPassword("");}
-        else if(!result.ok){
-          toast.error('error occured')
-          setEmail("");
-          setPassword("");
-        }
+        setPassword("");
+      toast.info("try again!")
+      }
+        // else if(!result.ok){
+        //   toast.error('error occured')
+        //   setEmail("");
+        //   setPassword("");
+        // }
        else {
         console.log("login successfully");
         localStorage.setItem("token", result.payload.data);

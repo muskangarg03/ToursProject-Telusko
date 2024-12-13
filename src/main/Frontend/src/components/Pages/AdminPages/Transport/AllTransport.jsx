@@ -7,16 +7,16 @@ const TransportCard = ({ transport }) => {
   const getTransportIcon = (type) => {
     switch (type) {
       case "Train":
-        return <Train className="text-blue-600 w-6 h-6" />;
+        return <Train className="w-6 h-6 text-blue-600" />;
       case "Bus":
-        return <Bus className="text-green-600 w-6 h-6" />;
+        return <Bus className="w-6 h-6 text-green-600" />;
       default:
-        return <Info className="text-gray-500 w-6 h-6" />;
+        return <Info className="w-6 h-6 text-gray-500" />;
     }
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 mb-4 border border-gray-100 hover:shadow-xl transition-all duration-300 ease-in-out">
+    <div className="p-4 mb-4 transition-all duration-300 ease-in-out bg-white border border-gray-100 rounded-lg shadow-md hover:shadow-xl">
       <div className="flex items-center mb-3">
         {getTransportIcon(transport.transportType)}
         <h3 className="ml-3 text-lg font-semibold text-gray-800">
@@ -30,14 +30,14 @@ const TransportCard = ({ transport }) => {
             Estimated Travel Time: {transport.estimatedTravelTime}
           </span>
         </div>
-        <div className="bg-gray-50 p-2 rounded text-sm text-gray-700">
+        <div className="p-2 text-sm text-gray-700 rounded bg-gray-50">
           <p>
             {transport.transportDescription ||
               "No description available for this transport option."}
           </p>
         </div>
-        <div className="flex justify-between items-center mt-3">
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+        <div className="flex items-center justify-between mt-3">
+          <span className="px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded">
             {transport.transportType}
           </span>
           {/* <span className="text-xs text-gray-500">ID: {transport.id}</span> */}
@@ -73,8 +73,8 @@ const AllTransport = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-blue-500"></div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-12 h-12 border-t-2 border-blue-500 rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -82,7 +82,7 @@ const AllTransport = () => {
   if (error) {
     return (
       <div
-        className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        className="relative px-4 py-3 text-red-700 bg-red-100 border border-red-400 rounded"
         role="alert"
       >
         {error}
@@ -91,8 +91,8 @@ const AllTransport = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+    <div className="container px-4 py-8 mx-auto">
+      <h1 className="mb-6 text-3xl font-bold text-center text-gray-800">
         Transport Options
       </h1>
       {transports.length === 0 ? (
@@ -100,7 +100,7 @@ const AllTransport = () => {
           No transport options available
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {transports.map((transport) => (
             <TransportCard key={transport.id} transport={transport} />
           ))}

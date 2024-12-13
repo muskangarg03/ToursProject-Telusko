@@ -18,6 +18,7 @@ import BookTour from "../components/Pages/UserPages/BookTour";
 import AuthSuccess from "../components/Authentication/AuthSuccess";
 import TermsOfService from "../components/Pages/terms";
 import PrivacyPolicy from "../components/Pages/Privacy";
+import Success from "../components/Pages/Success";
 
 const Routing = () => {
   return (
@@ -118,6 +119,8 @@ const Routing = () => {
         path="/user/book/:tourId"
         element={<ProtectedRoute element={BookTour} loginPath="/" />}
       ></Route>
+
+      <Route path="/success" element ={<ProtectedRoute element={Success} loginPath="/"/>}></Route>
     </Routes>
   );
 };

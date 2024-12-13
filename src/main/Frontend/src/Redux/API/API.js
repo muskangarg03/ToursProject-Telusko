@@ -94,6 +94,10 @@ export const adminTransport = createAsyncThunk("adminTransport", async () => {
 
 export const adminLocation = createAsyncThunk("adminLocation", async () => {
   try {
+    const token = localStorage.getItem('token');
+    if(!token){
+      return;
+    }
     const response = axios.get(`${baseUrl}/admin/locations`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -185,6 +189,9 @@ export const editLocation = createAsyncThunk(
 export const editTransport = createAsyncThunk(
   "editTransport",
   async ({ transportId, updatedTransport }) => {
+    if(!token){
+      return;
+    }
     const response = await axios.put(
       `${baseUrl}/admin/transports/${transportId}`,
       updatedTransport,
@@ -301,23 +308,27 @@ export const UserTourDetail = createAsyncThunk(
 
 export const userBook = createAsyncThunk(
   "userBook",
+
   async ({ tourId, numberOfTickets }) => {
+    const token = localStorage.getItem("token");
+      if (!token) {
+        return;
+      }
     try {
       const request = await axios.post(
         `${baseUrl}/customer/create-payment-intent/${tourId}?numberOfTickets=${numberOfTickets}`,
-        // { numberOfTickets },
+        // The second argument should be the request body (if any)
+        {},  // Empty object if no body is needed
         {
-          // params: { numberOfTickets },
           headers: {
-            // "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      return request;
+      return request.data;  // Return .data instead of entire request
     } catch (error) {
-      console.error(error);
-      throw error;
+      console.error('Booking error:', error.response ? error.response.data : error.message);
+      throw error;  // Rethrow to allow Redux to handle the error
     }
   }
 );
@@ -325,10 +336,11 @@ export const userBook = createAsyncThunk(
 // user confirm booking
 export const confirmBooking = createAsyncThunk(
   "confirmBooking",
-  async ({ bookingId }, { rejectWithValue }) => {
+  async ({ bookingId,paymentIntentId}, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${baseUrl}/customer/confirm-payment/${bookingId}?paymentTransactionId=aaaaa`,
+        `${baseUrl}/customer/confirm-payment/${bookingId}?paymentIntentId=${paymentIntentId}`,
+    {},
         {
           headers: {
             "Content-Type": "application/json",

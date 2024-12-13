@@ -5,12 +5,15 @@ import { Header, Footer, Banner } from "../../Reusable/Banner";
 import { useDispatch } from "react-redux";
 import { userTours } from "../../../Redux/API/API";
 import whatsapp from "../../../assets/Images/whatsapp.png";
+import BookTour from "./BookTour";
 
 const UserDashboard = () => {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tourImages, setTourImages] = useState({});
+  const [selectedTour, setSelectedTour] = useState(null);
+
 
   // New state for image handling
 
@@ -21,9 +24,13 @@ const UserDashboard = () => {
     navigate(`/user/tour/${tourId}`);
   };
 
-  const handleBookTour = (tourId) => {
-    navigate(`/user/book/${tourId}`);
+  const handleBookTour = (tour) => {
+    setSelectedTour(tour);
   };
+
+  const handleCloseModal = () => {
+    setSelectedTour(null);
+  };  
 
   const handleContactSupport = () => {
     window.open(
@@ -64,7 +71,7 @@ const UserDashboard = () => {
 
   // if (loading) {
   //   return (
-  //     <div className="flex justify-center items-center min-h-screen bg-gray-50">
+  //     <div className="flex items-center justify-center min-h-screen bg-gray-50">
   //       <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
   //     </div>
   //   );
@@ -72,13 +79,13 @@ const UserDashboard = () => {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
-        <div className="bg-white p-8 rounded-xl shadow-lg text-center space-y-4 max-w-md w-full">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="w-full max-w-md p-8 space-y-4 text-center bg-white shadow-lg rounded-xl">
           <h2 className="text-2xl font-bold text-red-600">Error</h2>
           <p className="text-gray-700">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            className="w-full py-2 text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600"
           >
             Retry
           </button>
@@ -88,52 +95,52 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       <Banner />
       {/* {isEditModalOpen && <EditModal />} */}
-      <div className="container mx-auto px-4 py-6 relative">
-        <div className="flex justify-between items-center mb-6">
+      <div className="container relative px-4 py-6 mx-auto">
+        <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Tour Dashboard</h1>
         </div>
 
         {tours.length === 0 ? (
-          <div className="text-center text-gray-500 py-10">
+          <div className="py-10 text-center text-gray-500">
             No tours available. Click "Add New Tour" to get started.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {tours.map((tour) => (
               <div
                 key={tour.id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden transform transition hover:scale-105 hover:shadow-xl"
+                className="overflow-hidden transition transform bg-white shadow-lg rounded-xl hover:scale-105 hover:shadow-xl"
               >
-                <div className="h-48 overflow-hidden relative">
+                <div className="relative h-48 overflow-hidden">
                   {tourImages[tour.id] ? (
                     <img
                       src={tourImages[tour.id]}
                       alt={tour.tourName}
-                      className="w-full h-full object-cover"
+                      className="object-cover w-full h-full"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+                    <div className="flex items-center justify-center w-full h-full text-gray-500 bg-gray-200">
                       No Image
                     </div>
                   )}
                 </div>
 
                 <div className="p-4">
-                  <h2 className="text-xl font-bold mb-2 text-gray-800 flex items-center justify-between">
+                  <h2 className="flex items-center justify-between mb-2 text-xl font-bold text-gray-800">
                     <span className="truncate">{tour.tourName}</span>
                   </h2>
 
-                  <p className="text-gray-600 mb-4 line-clamp-2">
+                  <p className="mb-4 text-gray-600 line-clamp-2">
                     {tour.tourDescription}
                   </p>
 
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-green-600 font-semibold text-lg">
+                      <p className="text-lg font-semibold text-green-600">
                         ${tour.price}
                       </p>
                       <p className="text-sm text-gray-500">
@@ -142,16 +149,16 @@ const UserDashboard = () => {
                     </div>
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => handleBookTour(tour.id)}
-                        className="flex items-center px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                        onClick={() => handleBookTour(tour)}
+                        className="flex items-center px-3 py-2 text-white transition-colors bg-green-500 rounded-md hover:bg-green-600"
                       >
                         Book
                       </button>
                       <button
                         onClick={() => handleViewDetails(tour.id)}
-                        className="flex items-center px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                        className="flex items-center px-3 py-2 text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600"
                       >
-                        <Eye className="mr-2 w-4 h-4" />
+                        <Eye className="w-4 h-4 mr-2" />
                         Details
                       </button>
                     </div>
@@ -172,12 +179,22 @@ const UserDashboard = () => {
             <img
               src={whatsapp}
               alt="whatsapp"
-              className="transform transition hover:scale-105 hover:shadow-xl"
+              className="transition transform hover:scale-105 hover:shadow-xl"
             />
           </div>
         </button>
       </div>
       <Footer />
+
+      {selectedTour && (
+        <BookTour
+          tourId={selectedTour.id}
+          isOpen={!!selectedTour}
+          onClose={handleCloseModal}
+          ticketsAvailable={selectedTour.ticketsAvailable}
+        />
+      )}
+
     </div>
   );
 };

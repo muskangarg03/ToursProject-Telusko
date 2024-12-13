@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const AddTour = () => {
+  const [loading,setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [userData, setUserData] = useState({
     tourName: "",
@@ -78,6 +79,7 @@ const AddTour = () => {
     e.preventDefault();
 
     try {
+      setLoading(true);
       // Location API
       const locationData = {
         fromLocation: userData.fromLocation,
@@ -101,7 +103,7 @@ const AddTour = () => {
       const lodgingData = {
         lodgingName: userData.lodgingName,
         lodgingType: userData.lodgingType,
-        lodgingdescription: userData.lodgingDescription,
+        lodgingDescription: userData.lodgingDescription,
         address: userData.lodgingAddress,
         rating: userData.lodgingRating,
       };
@@ -120,7 +122,7 @@ const AddTour = () => {
         transportName: userData.transportName,
         transportType: userData.transportType,
         estimatedTravelTime: userData.transportEstimatedTravelTime,
-        transportdescription: userData.transportDescription,
+        transportDescription: userData.transportDescription,
       };
       const transportResponse = await axios.post(
         `${baseUrl}/admin/transports`,
@@ -202,6 +204,8 @@ const AddTour = () => {
       navigate("/admin/dashboard");
     } catch (error) {
       console.error("Error submitting tour:", error);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -215,7 +219,7 @@ const AddTour = () => {
     ];
 
     return (
-      <div className="flex justify-between items-center mb-8 bg-gray-100 p-4 rounded-lg">
+      <div className="flex items-center justify-between p-4 mb-8 bg-gray-100 rounded-lg">
         {steps.map((step, index) => (
           <div
             key={step}
@@ -248,9 +252,9 @@ const AddTour = () => {
   // Tour Details Form (Step 1)
   const renderTourDetailsForm = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">Tour Details</h2>
+      <h2 className="mb-6 text-3xl font-bold text-gray-800">Tour Details</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <input
           type="text"
           name="tourName"
@@ -258,6 +262,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Tour Name"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <input
           type="text"
@@ -266,6 +271,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Tour Guide"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
       </div>
 
@@ -274,33 +280,35 @@ const AddTour = () => {
         value={userData.tourDescription}
         onChange={handleChange}
         placeholder="Tour Description"
-        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
+        className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="block text-gray-700 mb-2">Start Date</label>
+          <label className="block mb-2 text-gray-700">Start Date</label>
           <input
             type="date"
             name="startDate"
             value={userData.startDate}
             onChange={handleChange}
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
           />
         </div>
         <div>
-          <label className="block text-gray-700 mb-2">End Date</label>
+          <label className="block mb-2 text-gray-700">End Date</label>
           <input
             type="date"
             name="endDate"
             value={userData.endDate}
             onChange={handleChange}
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <input
           type="text"
           name="country"
@@ -308,6 +316,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Country"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <input
           type="number"
@@ -316,6 +325,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Price"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <input
           type="number"
@@ -324,12 +334,13 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Tickets Available"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
       </div>
 
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Meals</h3>
+          <h3 className="mb-4 text-lg font-semibold text-gray-700">Meals</h3>
           <div className="space-y-2">
             {["Breakfast", "Lunch", "Dinner"].map((meal) => (
               <label key={meal} className="flex items-center space-x-2">
@@ -338,7 +349,7 @@ const AddTour = () => {
                   value={meal}
                   checked={userData.meals.includes(meal)}
                   onChange={handleMealChange}
-                  className="form-checkbox h-5 w-5 text-blue-600"
+                  className="w-5 h-5 text-blue-600 form-checkbox"
                 />
                 <span>{meal}</span>
               </label>
@@ -347,7 +358,7 @@ const AddTour = () => {
         </div>
 
         <div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">
+          <h3 className="mb-4 text-lg font-semibold text-gray-700">
             Activities
           </h3>
           <div className="space-y-2">
@@ -359,7 +370,7 @@ const AddTour = () => {
                     value={activity}
                     checked={userData.activities.includes(activity)}
                     onChange={handleActivityChange}
-                    className="form-checkbox h-5 w-5 text-blue-600"
+                    className="w-5 h-5 text-blue-600 form-checkbox"
                   />
                   <span>{activity}</span>
                 </label>
@@ -370,7 +381,7 @@ const AddTour = () => {
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">
+        <h3 className="mb-4 text-lg font-semibold text-gray-700">
           Tour Images
         </h3>
         <div className="grid grid-cols-2 gap-4">
@@ -406,7 +417,7 @@ const AddTour = () => {
       <div className="flex justify-end">
         <button
           onClick={() => setCurrentStep(2)}
-          className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center px-6 py-3 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           Next: Location Details
           <ChevronRight className="ml-2" />
@@ -418,11 +429,11 @@ const AddTour = () => {
   // Location Details Form (Step 2)
   const renderLocationDetailsForm = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">
+      <h2 className="mb-6 text-3xl font-bold text-gray-800">
         Location Details
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <input
           type="text"
           name="fromLocation"
@@ -430,6 +441,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="From Location"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <input
           type="text"
@@ -438,10 +450,11 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="To Location"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <input
           type="number"
           name="distance"
@@ -449,6 +462,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Distance (km)"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <input
           name="estimatedTravelTime"
@@ -456,6 +470,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Estimated Travel Time"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
       </div>
 
@@ -464,20 +479,20 @@ const AddTour = () => {
         value={userData.locationDescription}
         onChange={handleChange}
         placeholder="Location Description"
-        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
+        className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       <div className="flex justify-between">
         <button
           onClick={() => setCurrentStep(1)}
-          className="flex items-center px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          className="flex items-center px-6 py-3 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300"
         >
           <ChevronLeft className="mr-2" />
           Previous: Tour Details
         </button>
         <button
           onClick={() => setCurrentStep(3)}
-          className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center px-6 py-3 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           Next: Lodging Details
           <ChevronRight className="ml-2" />
@@ -489,9 +504,9 @@ const AddTour = () => {
   // Lodging Details Form (Step 3)
   const renderLodgingDetailsForm = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">Lodging Details</h2>
+      <h2 className="mb-6 text-3xl font-bold text-gray-800">Lodging Details</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <input
           type="text"
           name="lodgingName"
@@ -499,6 +514,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Lodging Name"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <select
           name="lodgingType"
@@ -519,10 +535,10 @@ const AddTour = () => {
         value={userData.lodgingDescription}
         onChange={handleChange}
         placeholder="Lodging Description"
-        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
+        className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <input
           type="text"
           name="lodgingAddress"
@@ -530,6 +546,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Lodging Address"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <input
           type="number"
@@ -540,20 +557,21 @@ const AddTour = () => {
           min="0"
           max="5"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
       </div>
 
       <div className="flex justify-between">
         <button
           onClick={() => setCurrentStep(2)}
-          className="flex items-center px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          className="flex items-center px-6 py-3 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300"
         >
           <ChevronLeft className="mr-2" />
           Previous: Location Details
         </button>
         <button
           onClick={() => setCurrentStep(4)}
-          className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center px-6 py-3 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           Next: Transport Details
           <ChevronRight className="ml-2" />
@@ -565,11 +583,11 @@ const AddTour = () => {
   // Transport Details Form (Step 4)
   const renderTransportDetailsForm = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">
+      <h2 className="mb-6 text-3xl font-bold text-gray-800">
         Transport Details
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <input
           type="text"
           name="transportName"
@@ -577,6 +595,7 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Transport Name"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <select
           name="transportType"
@@ -592,7 +611,7 @@ const AddTour = () => {
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <input
           type="text"
           name="transportEstimatedTravelTime"
@@ -600,14 +619,15 @@ const AddTour = () => {
           onChange={handleChange}
           placeholder="Estimated Travel Time"
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <div className="flex items-center justify-center">
           <button
             onClick={submitData}
-            className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+            className="flex items-center justify-center w-full px-6 py-3 text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
           >
             <CheckCircle className="mr-2" />
-            Add Tour
+            {loading?"adding...":"Add Tour"}
           </button>
         </div>
       </div>
@@ -617,13 +637,13 @@ const AddTour = () => {
         value={userData.transportDescription}
         onChange={handleChange}
         placeholder="Transport Description"
-        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
+        className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       <div className="flex justify-between">
         <button
           onClick={() => setCurrentStep(3)}
-          className="flex items-center px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          className="flex items-center px-6 py-3 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300"
         >
           <ChevronLeft className="mr-2" />
           Previous: Lodging Details
@@ -649,8 +669,8 @@ const AddTour = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-4xl bg-white shadow-xl rounded-2xl p-8">
+    <div className="flex items-center justify-center min-h-screen p-6 bg-gray-50">
+      <div className="w-full max-w-4xl p-8 bg-white shadow-xl rounded-2xl">
         <ProgressIndicator />
         {renderCurrentStep()}
       </div>

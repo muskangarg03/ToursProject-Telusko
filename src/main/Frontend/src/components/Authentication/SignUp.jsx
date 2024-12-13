@@ -56,23 +56,27 @@ const SignUp = () => {
     alert("Terms and Policies - This is a placeholder for actual terms.");
   };
 
+  const googleLogin = () => {
+    window.open("http://localhost:8080/oauth2/authorization/google", "_self");
+  };
+
   return (
     <>
       <div className={darkMode ? "dark" : ""}>
-        <div className="flex min-h-screen flex-1 flex-col justify-center px-6 py-4 lg:px-8 dark:bg-slate-900">
+        <div className="flex flex-col justify-center flex-1 min-h-screen px-6 py-4 lg:px-8 dark:bg-slate-900">
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
             {darkMode ? (
-              <LogIn className="size-14 m-auto text-white" />
+              <LogIn className="m-auto text-white size-14" />
             ) : (
-              <LogIn className="size-14 m-auto" />
+              <LogIn className="m-auto size-14" />
             )}
 
-            <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-slate-200">
+            <h2 className="mt-6 text-2xl font-bold leading-9 tracking-tight text-center text-gray-900 dark:text-slate-200">
               Sign Up
             </h2>
           </div>
 
-          <div className="mt-3 sm:mx-auto sm:w-full sm:max-w-sm relative">
+          <div className="relative mt-3 sm:mx-auto sm:w-full sm:max-w-sm">
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div>
                 <label
@@ -127,7 +131,7 @@ const SignUp = () => {
                     Password
                   </label>
                 </div>
-                <div className="mt-2 relative">
+                <div className="relative mt-2">
                   <input
                     id="password"
                     name="password"
@@ -144,9 +148,9 @@ const SignUp = () => {
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
+                      <EyeOff className="w-5 h-5" />
                     ) : (
-                      <Eye className="h-5 w-5" />
+                      <Eye className="w-5 h-5" />
                     )}
                   </button>
                 </div>
@@ -159,11 +163,11 @@ const SignUp = () => {
                   type="checkbox"
                   checked={agreedToTerms}
                   onChange={() => setAgreedToTerms(!agreedToTerms)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                 />
                 <label
                   htmlFor="terms"
-                  className="ml-2 block text-sm text-gray-900 dark:text-slate-200"
+                  className="block ml-2 text-sm text-gray-900 dark:text-slate-200"
                 >
                   I agree to the{" "}
                   <button
@@ -179,7 +183,7 @@ const SignUp = () => {
               <div>
                 <button
                   type="submit"
-                  className="w-full bg-indigo-600 text-white py-2 rounded-md shadow-sm hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-2 text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   // disabled={!agreedToTerms}
                 >
                   {loading ? "loading" : "Sign Up"}
@@ -187,7 +191,7 @@ const SignUp = () => {
               </div>
             </form>
 
-            <p className="mt-5 text-center text-sm text-gray-500">
+            <p className="mt-5 text-sm text-center text-gray-500">
               Already a member?{" "}
               <Link
                 to="/"
@@ -197,11 +201,11 @@ const SignUp = () => {
               </Link>
             </p>
 
-            <p className="mt-3 text-center text-sm text-gray-900 dark:text-white">
+            <p className="mt-3 text-sm text-center text-gray-900 dark:text-white">
               or continue with
             </p>
-            <button className="mt-3 flex items-center w-40 m-auto justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 dark:text-white text-black border border-slate-400 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-              <img src={googleIMg} alt="Google" className="size-4 mr-2" />
+            <button className="mt-3 flex items-center w-40 m-auto justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 dark:text-white text-black border border-slate-400 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" onClick={googleLogin}>
+              <img src={googleIMg} alt="Google" className="mr-2 size-4" />
               Google
             </button>
           </div>

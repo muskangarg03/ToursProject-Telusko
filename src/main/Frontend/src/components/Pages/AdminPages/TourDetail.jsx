@@ -32,7 +32,10 @@ const TourDetailsPage = () => {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [isTransportModalOpen, setIsTransportModalOpen] = useState(false);
+  const [isLodgingModalOpen, setIsLodgingModalOpen] = useState(false);
+
 
   const { tourId } = useParams();
   const dispatch = useDispatch();
@@ -40,15 +43,19 @@ const TourDetailsPage = () => {
 
   const updateLocation = async (updatedLocation) => {
     try {
+      const token = localStorage.getItem('token');
+      if(!token){
+        return;
+      }
       const response = await dispatch(
         editLocation({ locationId: updatedLocation.id, updatedLocation })
       ).unwrap(); // Use unwrap() to handle potential errors
-
+         console.log(response,"location response")
       const updatedTourResponse = await dispatch(fetchTourDetails(tourId));
       setTour(updatedTourResponse.payload);
 
       // Close modal
-      setIsModalOpen(false);
+      setIsLocationModalOpen(false);
       toast.success("Location updated");
     } catch (error) {
       console.error("Error updating location:", error);
@@ -59,6 +66,10 @@ const TourDetailsPage = () => {
   // Update Transport API Call
   const updateTransport = async (updatedTransport) => {
     try {
+      const token = localStorage.getItem('token');
+      if(!token){
+        return;
+      }
       const response = await dispatch(
         editTransport({ transportId: updatedTransport.id, updatedTransport })
       ).unwrap(); // Use unwrap() to handle potential errors
@@ -67,7 +78,7 @@ const TourDetailsPage = () => {
       setTour(updatedTourResponse.payload);
 
       // Close modal
-      setIsModalOpen(false);
+      setIsTransportModalOpen(false);
       toast.success("transport updated");
     } catch (error) {
       console.error("Error updating location:", error);
@@ -77,16 +88,20 @@ const TourDetailsPage = () => {
 
   // Update Lodging API Call
   const updateLodging = async (updatedLodging) => {
+    const token = localStorage.getItem('token');
+    if(!token){
+      return;
+    }
     try {
       const response = await dispatch(
         editLodging({ lodgingId: updatedLodging.id, updatedLodging })
       ).unwrap(); // Use unwrap() to handle potential errors
+      console.log(response,'response lodging')
 
       const updatedTourResponse = await dispatch(fetchTourDetails(tourId));
       setTour(updatedTourResponse.payload);
-
       // Close modal
-      setIsModalOpen(false);
+      setIsLodgingModalOpen(false);
       toast.success("lodging updated");
     } catch (error) {
       console.error("Error updating location:", error);
@@ -133,7 +148,7 @@ const TourDetailsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
       </div>
     );
@@ -141,15 +156,15 @@ const TourDetailsPage = () => {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
-        <div className="bg-white p-8 rounded-2xl shadow-lg text-center space-y-4 max-w-md">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="max-w-md p-8 space-y-4 text-center bg-white shadow-lg rounded-2xl">
           <h2 className="text-2xl font-semibold text-gray-800">
             Error Loading Tour
           </h2>
           <p className="text-gray-600">{error}</p>
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-6 py-2 text-white transition-colors bg-blue-500 rounded-lg hover:bg-blue-600"
           >
             Return to Previous Page
           </button>
@@ -159,42 +174,42 @@ const TourDetailsPage = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12">
-      <div className="container mx-auto px-4 max-w-6xl">
+    <div className="min-h-screen py-12 bg-gray-50">
+      <div className="container max-w-6xl px-4 mx-auto">
         <button
           onClick={() => navigate(-1)}
-          className="mb-6 flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+          className="flex items-center mb-6 text-gray-600 transition-colors hover:text-gray-800"
         >
           <ChevronLeft className="mr-2" /> Back to Tours
         </button>
 
-        <div className="grid md:grid-cols-2 gap-10">
+        <div className="grid gap-10 md:grid-cols-2">
           {/* Image Section - Fixed Position */}
           <div className="md:sticky md:top-12 h-fit">
             {tourImages.length > 0 ? (
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg">
+              <div className="relative w-full overflow-hidden shadow-lg aspect-video rounded-2xl">
                 <img
                   src={tourImages[currentImageIndex]}
                   alt={`Tour image ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover"
+                  className="object-cover w-full h-full"
                 />
                 {tourImages.length > 1 && (
                   <>
                     <button
                       onClick={prevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-2 hover:bg-white/75 transition-all"
+                      className="absolute p-2 transition-all -translate-y-1/2 rounded-full left-4 top-1/2 bg-white/50 hover:bg-white/75"
                     >
                       <ChevronLeft className="text-gray-800" />
                     </button>
                     <button
                       onClick={nextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-2 hover:bg-white/75 transition-all"
+                      className="absolute p-2 transition-all -translate-y-1/2 rounded-full right-4 top-1/2 bg-white/50 hover:bg-white/75"
                     >
                       <ChevronRight className="text-gray-800" />
                     </button>
                   </>
                 )}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                <div className="absolute flex space-x-2 -translate-x-1/2 bottom-4 left-1/2">
                   {tourImages.map((_, index) => (
                     <div
                       key={index}
@@ -208,7 +223,7 @@ const TourDetailsPage = () => {
                 </div>
               </div>
             ) : (
-              <div className="w-full aspect-video bg-gray-200 flex items-center justify-center text-gray-500 rounded-2xl">
+              <div className="flex items-center justify-center w-full text-gray-500 bg-gray-200 aspect-video rounded-2xl">
                 No Images Available
               </div>
             )}
@@ -217,23 +232,23 @@ const TourDetailsPage = () => {
           {/* Details Section - Scrollable */}
           <div className="md:max-h-[calc(100vh-200px)] md:overflow-y-auto space-y-6 pr-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="mb-2 text-3xl font-bold text-gray-900">
                 {tour.tourName}
               </h1>
               <p className="text-gray-600">{tour.tourDescription}</p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               {/* Location Details */}
-              <div className="bg-white rounded-xl p-5 shadow-md">
+              <div className="p-5 bg-white shadow-md rounded-xl">
                 <div className="flex items-center mb-3">
                   <MapPin className="mr-2 text-blue-500" />
-                  <h3 className="text-md font-semibold text-gray-700">
+                  <h3 className="font-semibold text-gray-700 text-md">
                     Location
                   </h3>
                   <Pencil
-                    className="text-blue-500 ml-auto size-6 cursor-pointer hover:text-blue-700"
-                    onClick={() => setIsModalOpen(true)}
+                    className="ml-auto text-blue-500 cursor-pointer size-6 hover:text-blue-700"
+                    onClick={() => setIsLocationModalOpen(true)}
                   />
                 </div>
                 <div className="space-y-1 text-sm text-gray-600">
@@ -248,10 +263,10 @@ const TourDetailsPage = () => {
               </div>
 
               {/* Dates */}
-              <div className="bg-white rounded-xl p-5 shadow-md">
+              <div className="p-5 bg-white shadow-md rounded-xl">
                 <div className="flex items-center mb-3">
                   <CalendarDays className="mr-2 text-blue-500" />
-                  <h3 className="text-md font-semibold text-gray-700">Date</h3>
+                  <h3 className="font-semibold text-gray-700 text-md">Date</h3>
                 </div>
                 <div className="space-y-1 text-sm text-gray-600">
                   <p>Start: {tour.startDate}</p>
@@ -260,12 +275,12 @@ const TourDetailsPage = () => {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               {/* Pricing */}
-              <div className="bg-white rounded-xl p-5 shadow-md">
+              <div className="p-5 bg-white shadow-md rounded-xl">
                 <div className="flex items-center mb-3">
                   <DollarSign className="mr-2 text-green-500" />
-                  <h3 className="text-md font-semibold text-gray-700">
+                  <h3 className="font-semibold text-gray-700 text-md">
                     Pricing
                   </h3>
                 </div>
@@ -278,25 +293,25 @@ const TourDetailsPage = () => {
               </div>
 
               {/* Tour Guide */}
-              <div className="bg-white rounded-xl p-5 shadow-md">
+              <div className="p-5 bg-white shadow-md rounded-xl">
                 <div className="flex items-center mb-3">
                   <Users className="mr-2 text-purple-500" />
-                  <h3 className="text-md font-semibold text-gray-700">Guide</h3>
+                  <h3 className="font-semibold text-gray-700 text-md">Guide</h3>
                 </div>
                 <p className="text-sm text-gray-600">{tour.tourGuide}</p>
               </div>
             </div>
 
             {/* Additional Details */}
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               {/* Meals */}
-              <div className="bg-white rounded-xl p-5 shadow-md">
+              <div className="p-5 bg-white shadow-md rounded-xl">
                 <div className="flex items-center mb-3">
                   <Utensils className="mr-2 text-purple-500" />
-                  <h3 className="text-md font-semibold text-gray-700">Meals</h3>
+                  <h3 className="font-semibold text-gray-700 text-md">Meals</h3>
                 </div>
 
-                <ul className="list-disc list-inside text-sm text-gray-600">
+                <ul className="text-sm text-gray-600 list-disc list-inside">
                   {tour.meals.map((meal, index) => (
                     <li key={index}>{meal}</li>
                   ))}
@@ -304,14 +319,14 @@ const TourDetailsPage = () => {
               </div>
 
               {/* Activities */}
-              <div className="bg-white rounded-xl p-5 shadow-md">
+              <div className="p-5 bg-white shadow-md rounded-xl">
                 <div className="flex items-center mb-3">
                   <Target className="mr-2 text-blue-500" />
-                  <h3 className="text-md font-semibold text-gray-700">
+                  <h3 className="font-semibold text-gray-700 text-md">
                     Activities
                   </h3>
                 </div>
-                <ul className="list-disc list-inside text-sm text-gray-600">
+                <ul className="text-sm text-gray-600 list-disc list-inside">
                   {tour.activities.map((activity, index) => (
                     <li key={index}>{activity}</li>
                   ))}
@@ -320,17 +335,17 @@ const TourDetailsPage = () => {
             </div>
 
             {/* Lodging and Transport */}
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               {/* Lodging */}
-              <div className="bg-white rounded-xl p-5 shadow-md">
+              <div className="p-5 bg-white shadow-md rounded-xl">
                 <div className="flex items-center mb-3">
                   <Building2 className="mr-2 text-blue-500" />
-                  <h3 className="text-md font-semibold text-gray-700">
+                  <h3 className="font-semibold text-gray-700 text-md">
                     Lodging
                   </h3>
                   <Pencil
-                    onClick={() => setIsModalOpen(true)}
-                    className="text-blue-500 ml-auto size-6 cursor-pointer hover:text-blue-700"
+                    onClick={() => setIsLodgingModalOpen(true)}
+                    className="ml-auto text-blue-500 cursor-pointer size-6 hover:text-blue-700"
                   />
                 </div>
                 <div className="space-y-1 text-sm text-gray-600">
@@ -351,15 +366,15 @@ const TourDetailsPage = () => {
               </div>
 
               {/* Transport */}
-              <div className="bg-white rounded-xl p-5 shadow-md">
+              <div className="p-5 bg-white shadow-md rounded-xl">
                 <div className="flex items-center mb-3">
                   <Bus className="mr-2 text-blue-500" />
-                  <h3 className="text-md font-semibold text-gray-700">
+                  <h3 className="font-semibold text-gray-700 text-md">
                     Transport
                   </h3>
                   <Pencil
-                    onClick={() => setIsModalOpen(true)}
-                    className="text-blue-500 ml-auto size-6 cursor-pointer hover:text-blue-700"
+                    onClick={() => setIsTransportModalOpen(true)}
+                    className="ml-auto text-blue-500 cursor-pointer size-6 hover:text-blue-700"
                   />
                 </div>
                 <div className="space-y-1 text-sm text-gray-600">
@@ -377,24 +392,24 @@ const TourDetailsPage = () => {
       </div>
 
       <LocationUpdateModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isLocationModalOpen}
+        onClose={() => setIsLocationModalOpen(false)}
         initialLocation={tour.location}
         onUpdateLocation={updateLocation}
       />
 
       {/* Transport Update Modal */}
       <TransportUpdateModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isTransportModalOpen}
+        onClose={() => setIsTransportModalOpen(false)}
         initialTransport={tour.transport}
         onUpdateTransport={updateTransport}
       />
 
       {/* Lodging Update Modal */}
       <LodgingUpdateModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isLodgingModalOpen}
+        onClose={() => setIsLodgingModalOpen(false)}
         initialLodging={tour.lodging}
         onUpdateLodging={updateLodging}
       />

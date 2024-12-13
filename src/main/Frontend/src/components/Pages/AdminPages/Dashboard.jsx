@@ -4,21 +4,18 @@ import {
   Eye,
   Pencil,
   Trash2,
-  X,
-  Upload,
-  Plus,
-  Minus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Header, Footer, Banner } from "../../Reusable/Banner";
 import { useDispatch } from "react-redux";
 import { adminTours, deleteTour, updateTour } from "../../../Redux/API/API";
-import axios from "axios";
 import { toast } from "sonner";
+import EditTourModal from './EditTourModal'; // Import the new modal component
 
 const Dashboard = () => {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loader,setLoader] = useState(false);
   const [error, setError] = useState(null);
   const [tourImages, setTourImages] = useState({});
   const [selectedTour, setSelectedTour] = useState(null);
@@ -37,29 +34,11 @@ const Dashboard = () => {
   const image1Ref = useRef(null);
   const image2Ref = useRef(null);
 
-  const baseUrl = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleViewDetails = (tourId) => {
     navigate(`/admin/tour/${tourId}`);
-  };
-
-  const fetchImage = async (imagePath) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${baseUrl}/upload_images/${imagePath}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      return response.ok ? URL.createObjectURL(await response.blob()) : null;
-    } catch (error) {
-      console.error("Image fetch error:", error);
-      return null;
-    }
   };
 
   useEffect(() => {
@@ -142,6 +121,7 @@ const Dashboard = () => {
 
   const handleUpdateTour = async () => {
     try {
+      setLoader(true);
       const formData = new FormData();
 
       // Append tour data
@@ -162,41 +142,24 @@ const Dashboard = () => {
       // Refresh tours after successful update
       const response = await dispatch(adminTours());
       setTours(response.payload.data);
-
       setIsEditModalOpen(false);
       toast.success("Tour Updated");
       setSelectedTour(null);
     } catch (error) {
       console.error("Error updating tour:", error);
       toast.error("Failed to update tour");
+    }finally{
+      setLoader(false);
+
     }
   };
 
   const handleDelete = async (tour) => {
-    // try {
-    //   const token = localStorage.getItem("token");
-    //   const response = await axios.delete(`${baseUrl}/admin/tours/${tour.id}`, {
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //   });
-
-    //   if (response.status === 204) {
-    //     // Refresh tours after successful deletion
-    //     const updatedResponse = await dispatch(adminTours());
-    //     setTours(updatedResponse.payload.data);
-
-    //     toast.success("Tour deleted successfully");
-    //   }
-    // } catch (error) {
-    //   console.error("Error deleting tour:", error);
-    //   toast.error("Failed to delete tour");
-    // }
     try {
       const tourId = tour.id;
       const response = await dispatch(deleteTour(tourId));
       if (response.payload.status === 204) {
-        const updatedResponse = dispatch(adminTours());
+        const updatedResponse = await dispatch(adminTours());
         setTours(updatedResponse.payload.data);
 
         toast.success("Tour deleted successfully");
@@ -207,290 +170,14 @@ const Dashboard = () => {
     }
   };
 
-  const addMeal = () => {
-    setEditFormData((prev) => ({
-      ...prev,
-      meals: [...(prev.meals || []), ""],
-    }));
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedTour(null);
   };
-
-  const removeMeal = (index) => {
-    setEditFormData((prev) => ({
-      ...prev,
-      meals: prev.meals.filter((_, i) => i !== index),
-    }));
-  };
-
-  const updateMeal = (index, value) => {
-    setEditFormData((prev) => ({
-      ...prev,
-      meals: prev.meals.map((meal, i) => (i === index ? value : meal)),
-    }));
-  };
-
-  const addActivity = () => {
-    setEditFormData((prev) => ({
-      ...prev,
-      activities: [...(prev.activities || []), ""],
-    }));
-  };
-
-  const removeActivity = (index) => {
-    setEditFormData((prev) => ({
-      ...prev,
-      activities: prev.activities.filter((_, i) => i !== index),
-    }));
-  };
-
-  const updateActivity = (index, value) => {
-    setEditFormData((prev) => ({
-      ...prev,
-      activities: prev.activities.map((activity, i) =>
-        i === index ? value : activity
-      ),
-    }));
-  };
-
-  const EditModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={() => setIsEditModalOpen(false)}
-          className="absolute top-4 right-4"
-        >
-          <X className="text-gray-500 hover:text-gray-700" />
-        </button>
-        <h2 className="text-2xl font-bold mb-4">Edit Tour</h2>
-
-        <div className="space-y-4">
-          {/* Image Upload Section */}
-          <div className="flex space-x-4">
-            <div className="w-1/2">
-              <label className="block mb-2 text-sm font-medium">Image 1</label>
-              <div
-                className="w-full h-40 border-2 border-dashed rounded-lg flex items-center justify-center relative cursor-pointer"
-                onClick={() => image1Ref.current.click()}
-              >
-                <input
-                  type="file"
-                  ref={image1Ref}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) =>
-                    handleImageUpload(e, setImage1Preview, setImage1File)
-                  }
-                />
-                {image1Preview ? (
-                  <img
-                    src={image1Preview}
-                    alt="Preview"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center text-gray-500">
-                    <Upload className="w-10 h-10 mb-2" />
-                    <span>Upload Image 1</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="w-1/2">
-              <label className="block mb-2 text-sm font-medium">Image 2</label>
-              <div
-                className="w-full h-40 border-2 border-dashed rounded-lg flex items-center justify-center relative cursor-pointer"
-                onClick={() => image2Ref.current.click()}
-              >
-                <input
-                  type="file"
-                  ref={image2Ref}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) =>
-                    handleImageUpload(e, setImage2Preview, setImage2File)
-                  }
-                />
-                {image2Preview ? (
-                  <img
-                    src={image2Preview}
-                    alt="Preview"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center text-gray-500">
-                    <Upload className="w-10 h-10 mb-2" />
-                    <span>Upload Image 2</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Rest of the form remains the same */}
-          <input
-            type="text"
-            placeholder="Tour Name"
-            value={editFormData.tourName}
-            onChange={(e) =>
-              setEditFormData({ ...editFormData, tourName: e.target.value })
-            }
-            className="w-full p-2 border rounded-md"
-          />
-          <textarea
-            placeholder="Tour Description"
-            value={editFormData.tourDescription}
-            onChange={(e) =>
-              setEditFormData({
-                ...editFormData,
-                tourDescription: e.target.value,
-              })
-            }
-            className="w-full p-2 border rounded-md h-24"
-          />
-
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-lg font-semibold">Meals</label>
-              <button
-                onClick={addMeal}
-                className="flex items-center text-blue-600 hover:text-blue-800"
-              >
-                <Plus className="mr-1" size={16} /> Add Meal
-              </button>
-            </div>
-            {editFormData.meals &&
-              editFormData.meals.map((meal, index) => (
-                <div key={index} className="flex items-center space-x-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder={`Meal ${index + 1}`}
-                    value={meal}
-                    onChange={(e) => updateMeal(index, e.target.value)}
-                    className="flex-grow p-2 border rounded-md"
-                  />
-                  <button
-                    onClick={() => removeMeal(index)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Minus />
-                  </button>
-                </div>
-              ))}
-          </div>
-
-          {/* Activities Section */}
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-lg font-semibold">Activities</label>
-              <button
-                onClick={addActivity}
-                className="flex items-center text-blue-600 hover:text-blue-800"
-              >
-                <Plus className="mr-1" size={16} /> Add Activity
-              </button>
-            </div>
-            {editFormData.activities &&
-              editFormData.activities.map((activity, index) => (
-                <div key={index} className="flex items-center space-x-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder={`Activity ${index + 1}`}
-                    value={activity}
-                    onChange={(e) => updateActivity(index, e.target.value)}
-                    className="flex-grow p-2 border rounded-md"
-                  />
-                  <button
-                    onClick={() => removeActivity(index)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Minus />
-                  </button>
-                </div>
-              ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="Tour Guide"
-              value={editFormData.tourGuide}
-              onChange={(e) =>
-                setEditFormData({ ...editFormData, tourGuide: e.target.value })
-              }
-              className="w-full p-2 border rounded-md"
-            />
-            <input
-              type="number"
-              placeholder="Price"
-              value={editFormData.price}
-              onChange={(e) =>
-                setEditFormData({ ...editFormData, price: e.target.value })
-              }
-              className="w-full p-2 border rounded-md"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm mb-1">Start Date</label>
-              <input
-                type="date"
-                value={editFormData.startDate}
-                onChange={(e) =>
-                  setEditFormData({
-                    ...editFormData,
-                    startDate: e.target.value,
-                  })
-                }
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-sm mb-1">End Date</label>
-              <input
-                type="date"
-                value={editFormData.endDate}
-                onChange={(e) =>
-                  setEditFormData({ ...editFormData, endDate: e.target.value })
-                }
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
-          </div>
-          <input
-            type="number"
-            placeholder="Tickets Available"
-            value={editFormData.ticketsAvailable}
-            onChange={(e) =>
-              setEditFormData({
-                ...editFormData,
-                ticketsAvailable: e.target.value,
-              })
-            }
-            className="w-full p-2 border rounded-md"
-          />
-        </div>
-
-        <div className="mt-6 flex justify-end space-x-4">
-          <button
-            onClick={() => setIsEditModalOpen(false)}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleUpdateTour}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          >
-            Update Tour
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
       </div>
     );
@@ -498,13 +185,13 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
-        <div className="bg-white p-8 rounded-xl shadow-lg text-center space-y-4 max-w-md w-full">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="w-full max-w-md p-8 space-y-4 text-center bg-white shadow-lg rounded-xl">
           <h2 className="text-2xl font-bold text-red-600">Error</h2>
           <p className="text-gray-700">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            className="w-full py-2 text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600"
           >
             Retry
           </button>
@@ -514,16 +201,32 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       <Banner />
-      {isEditModalOpen && <EditModal />}
-      <div className="container mx-auto px-4 py-6 relative">
-        <div className="flex justify-between items-center mb-6">
+      <EditTourModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        editFormData={editFormData}
+        setEditFormData={setEditFormData}
+        onUpdate={handleUpdateTour}
+        image1Preview={image1Preview}
+        image2Preview={image2Preview}
+        image1Ref={image1Ref}
+        image2Ref={image2Ref}
+        handleImageUpload={handleImageUpload}
+        setImage1Preview={setImage1Preview}
+        setImage2Preview={setImage2Preview}
+        setImage1File={setImage1File}
+        setImage2File={setImage2File}
+        loading={loader}
+      />
+      <div className="container relative px-4 py-6 mx-auto">
+        <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Tour Dashboard</h1>
           <button
             onClick={() => navigate("/admin/addtour")}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors shadow-md"
+            className="flex items-center px-4 py-2 space-x-2 text-white transition-colors bg-blue-500 rounded-md shadow-md hover:bg-blue-600"
           >
             <BadgePlus className="w-5 h-5" />
             <span>Add New Tour</span>
@@ -531,52 +234,52 @@ const Dashboard = () => {
         </div>
 
         {tours.length === 0 ? (
-          <div className="text-center text-gray-500 py-10">
+          <div className="py-10 text-center text-gray-500">
             No tours available. Click "Add New Tour" to get started.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {tours.map((tour) => (
               <div
                 key={tour.id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden transform transition hover:scale-105 hover:shadow-xl"
+                className="overflow-hidden transition transform bg-white shadow-lg rounded-xl hover:scale-105 hover:shadow-xl"
               >
-                <div className="h-48 overflow-hidden relative">
+                <div className="relative h-48 overflow-hidden">
                   {tourImages[tour.id] ? (
                     <img
                       src={tourImages[tour.id]}
                       alt={tour.tourName}
-                      className="w-full h-full object-cover"
+                      className="object-cover w-full h-full"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+                    <div className="flex items-center justify-center w-full h-full text-gray-500 bg-gray-200">
                       No Image
                     </div>
                   )}
                 </div>
 
                 <div className="p-4">
-                  <h2 className="text-xl font-bold mb-2 text-gray-800 flex items-center justify-between">
+                  <h2 className="flex items-center justify-between mb-2 text-xl font-bold text-gray-800">
                     <span className="truncate">{tour.tourName}</span>
                     <div className="flex space-x-3">
                       <Pencil
-                        className="text-blue-500 size-5 cursor-pointer hover:text-blue-700"
+                        className="text-blue-500 cursor-pointer size-5 hover:text-blue-700"
                         onClick={() => handleEditTour(tour)}
                       />
                       <Trash2
-                        className="text-red-500 size-5 cursor-pointer hover:text-red-700"
+                        className="text-red-500 cursor-pointer size-5 hover:text-red-700"
                         onClick={() => handleDelete(tour)}
                       />
                     </div>
                   </h2>
 
-                  <p className="text-gray-600 mb-4 line-clamp-2">
+                  <p className="mb-4 text-gray-600 line-clamp-2">
                     {tour.tourDescription}
                   </p>
 
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-blue-600 font-semibold text-lg">
+                      <p className="text-lg font-semibold text-blue-600">
                         ${tour.price}
                       </p>
                       <p className="text-sm text-gray-500">
@@ -586,9 +289,9 @@ const Dashboard = () => {
 
                     <button
                       onClick={() => handleViewDetails(tour.id)}
-                      className="flex items-center px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                      className="flex items-center px-3 py-2 text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600"
                     >
-                      <Eye className="mr-2 w-4 h-4" />
+                      <Eye className="w-4 h-4 mr-2" />
                       Details
                     </button>
                   </div>

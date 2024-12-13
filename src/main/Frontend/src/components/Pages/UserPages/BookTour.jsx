@@ -1,97 +1,106 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
-import { userBook, confirmBooking } from "../../../Redux/API/API";
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { userBook } from '../../../Redux/API/API';
 
-const BookTour = () => {
-  const [numberOfTickets, setNumberOfTickets] = useState(0);
-  const [bookingResponse, setBookingResponse] = useState(null);
+const BookTour = ({ tourId, isOpen, onClose, ticketsAvailable }) => {
+  const [numberOfTickets, setNumberOfTickets] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const dispatch = useDispatch();
-  const { tourId } = useParams();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validation checks
+    if (numberOfTickets <= 0) {
+      setError('Please select at least 1 ticket');
+      return;
+    }
 
-    dispatch(userBook({ tourId, numberOfTickets }))
-      .then((res) => {
-        console.log(res, "booking response");
-        if (!res.ok) {
-          console.log("error occured");
-        }
-        setBookingResponse(res.payload.data);
-      })
-      .catch((error) => {
-        console.error("Booking failed", error);
-      });
+    if (numberOfTickets > ticketsAvailable) {
+      setError(`Only ${ticketsAvailable} tickets are available`);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+  
+    try {
+      const response = await dispatch(
+        userBook({ tourId, numberOfTickets })
+      ).unwrap();
+
+      if (response && response.checkoutUrl) {
+        window.location.href = response.checkoutUrl;
+      }
+    } catch (err) {
+      setError(err?.message || 'Booking failed. Please try again.');
+      console.error("Booking error:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleConfirmBooking = () => {
-    if (!bookingResponse) return;
-
-    console.log(bookingResponse.booking.bookingId, "booking ID");
-    const bookingId = bookingResponse.booking.bookingId;
-    // const paymentTransactionId = aaaaa;
-
-    dispatch(
-      confirmBooking({
-        bookingId,
-        // paymentTransactionId,
-      })
-    )
-      .then((res) => {
-        console.log(res, "confirmation response");
-        if (res.ok) {
-          alert("Booking confirmed successfully!");
-        }
-      })
-      .catch((error) => {
-        console.error("Booking confirmation failed", error);
-        alert("Booking confirmation failed");
-      });
-  };
+  if (!isOpen) return null;
 
   return (
-    <div className="max-w-md mx-auto p-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="booktour"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Book Tour
-          </label>
-          <input
-            type="number"
-            id="booktour"
-            value={numberOfTickets}
-            onChange={(e) => setNumberOfTickets(Number(e.target.value))}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            min="0"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-        >
-          Book
-        </button>
-      </form>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="p-6 bg-white shadow-xl rounded-xl w-96">
+        <h2 className="mb-4 text-2xl font-bold text-gray-800">Book Tickets</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label 
+              htmlFor="ticketCount" 
+              className="block mb-2 text-sm font-medium text-gray-700"
+            >
+              Number of Tickets
+            </label>
+            <input
+              type="number"
+              id="ticketCount"
+              value={numberOfTickets}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                setNumberOfTickets(value);
+                setError(null);
+              }}
+              min="1"
+              max={ticketsAvailable}
+              className="block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              Available tickets: {ticketsAvailable}
+            </p>
+          </div>
 
-      {bookingResponse && (
-        <div className="mt-4 p-4 bg-gray-100 rounded">
-          <h2 className="text-lg font-semibold">Booking Details</h2>
-          <p>Booking ID: {bookingResponse.booking.bookingId}</p>
-          <p>Total Price: ${bookingResponse.booking.totalPrice}</p>
-          <p>Number of Tickets: {bookingResponse.booking.numberOfTickets}</p>
+          {error && (
+            <div className="p-3 text-red-700 bg-red-100 rounded-md">
+              {error}
+            </div>
+          )}
 
-          <button
-            onClick={handleConfirmBooking}
-            className="mt-4 w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
-          >
-            Confirm Booking
-          </button>
-        </div>
-      )}
+          <div className="flex space-x-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-2 text-gray-600 transition-colors border border-gray-300 rounded-md hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full py-2 text-white rounded-md transition-colors ${
+                isLoading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+            >
+              {isLoading ? 'Booking...' : 'Book Tickets'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
