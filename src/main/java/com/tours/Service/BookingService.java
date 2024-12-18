@@ -76,7 +76,6 @@ public class BookingService {
 
                 int ticketsAvailable = tour.getTicketsAvailable();
                 if (ticketsAvailable >= booking.getNumberOfTickets()) {
-                    tour.setTicketsAvailable(ticketsAvailable - booking.getNumberOfTickets());
                     tourRepository.save(tour);
                 } else {
                     logger.error("Not enough tickets available for Booking ID: {}", bookingId);

@@ -83,7 +83,8 @@ public class SecurityConfig {
                 })
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/signup", "/auth/login", "/login/oauth2", "/error").permitAll()
+                        .requestMatchers("/auth/signup", "/auth/login", "/login/oauth2", "/error",
+                                "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/auth/admin/**", "/admin/**").hasRole("ADMIN")
                         .requestMatchers("/auth/customer/**", "/customer/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated())

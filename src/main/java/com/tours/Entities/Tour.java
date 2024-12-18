@@ -1,15 +1,13 @@
 package com.tours.Entities;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
-
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "tour")
@@ -37,14 +35,14 @@ public class Tour implements Serializable {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "tour_meals", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "meal")
-    @JsonIgnore
-    private List<String> meals;
+    @Builder.Default
+    private List<String> meals = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "tour_activities", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "activity")
-    @JsonIgnore
-    private List<String> activities;
+    @Builder.Default
+    private List<String> activities = new ArrayList<>();
 
     private Double price;
     private Integer ticketsAvailable;
@@ -52,25 +50,21 @@ public class Tour implements Serializable {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "tour_images", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "image")
-    @JsonIgnore
-    private List<String> tourImages;
+    @Builder.Default
+    private List<String> tourImages = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name = "location_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Location location;
 
     @OneToOne
     @JoinColumn(name = "lodging_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Lodging lodging;
 
     @OneToOne
     @JoinColumn(name = "transport_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Transport transport;
-
-
-    // Getters and setters
-
 }
-
-
-

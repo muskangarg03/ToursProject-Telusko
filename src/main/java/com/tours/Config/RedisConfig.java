@@ -46,7 +46,7 @@ public class RedisConfig {
 
         // Set default cache configuration with TTL and disable null value caching
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(1))  // Cache expiration time
+                .entryTtl(Duration.ofHours(24))  // Cache expiration time
                 .disableCachingNullValues();
 
         RedisCacheManager cacheManager = RedisCacheManager.builder(connectionFactory)
