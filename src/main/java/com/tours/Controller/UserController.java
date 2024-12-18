@@ -1,10 +1,10 @@
 package com.tours.Controller;
 
-import com.tours.Config.JwtFilter;
 import com.tours.Entities.Users;
 import com.tours.Service.JwtService;
 import com.tours.Service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
+@Tag(name = "User Authentication", description = "APIs for User Signup, Login, and Role-Based Dashboards")
 public class UserController {
 
     @Autowired
@@ -31,7 +32,7 @@ public class UserController {
     @Autowired
     private JwtService jwtService;
 
-    // Signup endpoint remains unchanged
+    @Operation(summary = "Register a new user", description = "Allows users to sign up with their details")
     @PostMapping("/signup")
     public ResponseEntity<String> registerUser(@Valid @RequestBody Users user) throws Exception {
         if (!user.isEnabled()) { // Assuming `enabled` is a boolean field in the Users class
@@ -42,16 +43,13 @@ public class UserController {
         return ResponseEntity.ok("User registered successfully!");
     }
 
-    // Login endpoint using Spring Security and JWT Token Generation
+    @Operation(summary = "Login user", description = "Authenticate user and return a JWT token")
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody Users loginUser) {
-        // Authenticate the user with the authentication manager
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginUser.getEmail(), loginUser.getPassword()));
 
-        // Check if authentication was successful
         if (authentication.isAuthenticated()) {
-            // Generate JWT token
             String token = jwtService.generateToken(loginUser.getEmail());
             return ResponseEntity.ok(token); // Return the token to the client
         } else {
@@ -59,9 +57,7 @@ public class UserController {
         }
     }
 
-
-
-    // Admin Dashboard with Role-Based Authorization
+    @Operation(summary = "Admin Dashboard", description = "Accessible only to users with the ADMIN role")
     @GetMapping("/admin/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> adminDashboard() {
@@ -70,8 +66,7 @@ public class UserController {
         return ResponseEntity.ok("Welcome to the Admin Dashboard, " + username);
     }
 
-
-    // Customer Dashboard with Role-Based Authorization
+    @Operation(summary = "Customer Dashboard", description = "Accessible only to users with the CUSTOMER role")
     @GetMapping("/customer/dashboard")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> customerDashboard() {
@@ -90,10 +85,4 @@ public class UserController {
         }
         return principal.toString();
     }
-
-//    @PostMapping("/logout")
-//    public ResponseEntity<String> logoutUser(HttpSession session) {
-//        session.invalidate(); // Invalidate session to log the user out
-//        return ResponseEntity.ok("Logged out successfully.");
-//    }
 }

@@ -4,6 +4,9 @@ import com.tours.Entities.Transport;
 import com.tours.Exception.TransportNotFoundException;
 import com.tours.Repo.TransportRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +21,7 @@ public class TransportService {
     private TransportRepo transportRepository;
 
     // Add a new transport
+    @CachePut(value = "transports", key = "#transport.id")
     public Transport addTransport(Transport transport) {
         logger.info("Adding a new transport with details: " + transport);
         Transport savedTransport = transportRepository.save(transport);
@@ -26,6 +30,7 @@ public class TransportService {
     }
 
     // Get transport by ID
+    @Cacheable(value = "transports", key = "#id")
     public Transport getTransportById(Long id) {
         logger.info("Fetching transport with ID: " + id);
         Transport transport = transportRepository.findById(id)
@@ -35,6 +40,7 @@ public class TransportService {
     }
 
     // Get all transports
+    @Cacheable(value = "TransportCache", key = "'allTransports'")
     public List<Transport> getAllTransports() {
         logger.info("Fetching all transports");
         List<Transport> transports = transportRepository.findAll();
@@ -43,6 +49,7 @@ public class TransportService {
     }
 
     // Update transport
+    @CachePut(value = "transports", key = "#id")
     public Transport updateTransport(Long id, Transport transportDetails) {
         logger.info("Updating transport with ID: " + id);
         Transport transport = transportRepository.findById(id)
@@ -60,6 +67,7 @@ public class TransportService {
     }
 
     // Delete transport
+    @CacheEvict(value = "transports", key = "#id")
     public void deleteTransport(Long id) {
         logger.info("Deleting transport with ID: " + id);
         transportRepository.findById(id)

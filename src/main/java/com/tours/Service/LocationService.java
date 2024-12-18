@@ -4,6 +4,9 @@ import com.tours.Entities.Location;
 import com.tours.Exception.LocationNotFoundException;
 import com.tours.Repo.LocationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ public class LocationService {
     private LocationRepo locationRepository;
 
     // Add a new location
+    @CachePut(value = "locations", key = "#location.id")
     public Location addLocation(Location location) {
         logger.info("Adding a new location with details: " + location);
         Location savedLocation = locationRepository.save(location);
@@ -28,6 +32,7 @@ public class LocationService {
     }
 
     // Get location by ID
+    @Cacheable(value = "locations", key = "#id")
     public Optional<Location> getLocationById(Long id) {
         logger.info("Fetching location with ID: " + id);
         Optional<Location> location = Optional.ofNullable(locationRepository.findById(id)
@@ -37,6 +42,7 @@ public class LocationService {
     }
 
     // Get all locations
+    @Cacheable(value = "LocationCache", key = "'allLocations'")
     public List<Location> getAllLocations() {
         logger.info("Fetching all locations");
         List<Location> locations = locationRepository.findAll();
@@ -46,6 +52,7 @@ public class LocationService {
 
     // Update location
     @Transactional
+    @CachePut(value = "locations", key = "#id")
     public Location updateLocation(Long id, Location locationDetails) {
         logger.info("Updating location with ID: " + id);
         Location location = locationRepository.findById(id)
@@ -65,6 +72,7 @@ public class LocationService {
     }
 
     // Delete location
+    @CacheEvict(value = "locations", key = "#id")
     public void deleteLocation(Long id) {
         logger.info("Deleting location with ID: " + id);
         locationRepository.findById(id)

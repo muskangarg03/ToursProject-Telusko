@@ -4,6 +4,9 @@ import com.tours.Entities.Lodging;
 import com.tours.Exception.LodgingNotFoundException;
 import com.tours.Repo.LodgingRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +21,7 @@ public class LodgingService {
     private LodgingRepo lodgingRepository;
 
     // Add a new Lodging
+    @CachePut(value = "lodgings", key = "#lodging.id")
     public Lodging addLodging(Lodging lodging) {
         logger.info("Adding a new lodging with details: " + lodging);
         Lodging savedLodging = lodgingRepository.save(lodging);
@@ -26,6 +30,7 @@ public class LodgingService {
     }
 
     // Get Lodging by ID
+    @Cacheable(value = "lodgings", key = "#id")
     public Lodging getLodgingById(Long id) {
         logger.info("Fetching lodging with ID: " + id);
         Lodging lodging = lodgingRepository.findById(id)
@@ -35,6 +40,7 @@ public class LodgingService {
     }
 
     // Get all Lodgings
+    @Cacheable(value = "LodgingCache", key = "'allLodgings'")
     public List<Lodging> getAllLodgings() {
         logger.info("Fetching all lodgings");
         List<Lodging> lodgings = lodgingRepository.findAll();
@@ -43,6 +49,7 @@ public class LodgingService {
     }
 
     // Update Lodging by ID
+    @CachePut(value = "lodgings", key = "#id")
     public Lodging updateLodging(Long id, Lodging lodgingDetails) {
         logger.info("Updating lodging with ID: " + id);
         Lodging lodging = lodgingRepository.findById(id)
@@ -61,6 +68,7 @@ public class LodgingService {
     }
 
     // Delete Lodging by ID
+    @CacheEvict(value = "lodgings", key = "#id")
     public void deleteLodging(Long id) {
         logger.info("Deleting lodging with ID: " + id);
         lodgingRepository.findById(id)

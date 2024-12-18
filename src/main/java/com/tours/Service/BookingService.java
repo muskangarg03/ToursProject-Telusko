@@ -1,20 +1,24 @@
 package com.tours.Service;
 
-import com.stripe.exception.StripeException;
-import com.stripe.model.PaymentIntent;
 import com.tours.Entities.Booking;
 import com.tours.Entities.Tour;
 import com.tours.Entities.Users;
 import com.tours.Repo.BookingRepo;
 import com.tours.Repo.TourRepo;
+import com.tours.Exception.InsufficientTicketsException;
+import com.tours.Exception.BookingNotFoundException;
+import com.tours.Exception.PaymentFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
 public class BookingService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BookingService.class);
 
     @Autowired
     private BookingRepo bookingRepository;
@@ -22,108 +26,78 @@ public class BookingService {
     @Autowired
     private TourRepo tourRepository;
 
-
     // Method to create a booking
     public Booking createBooking(Users customer, Long tourId, int numberOfTickets) {
+        logger.info("Creating booking for customer: {}, Tour ID: {}, Number of Tickets: {}", customer.getName(), tourId, numberOfTickets);
+
         Optional<Tour> optionalTour = tourRepository.findById(tourId);
         if (optionalTour.isPresent()) {
             Tour tour = optionalTour.get();
 
-            // Ensure that there are enough tickets available
             if (tour.getTicketsAvailable() >= numberOfTickets) {
-
                 double totalPrice = tour.getPrice() * numberOfTickets;
-
                 Booking booking = Booking.builder()
                         .customer(customer)
                         .tour(tour)
                         .numberOfTickets(numberOfTickets)
                         .totalPrice(totalPrice)
-                        .paymentStatus(Booking.PaymentStatus.PENDING) // Set to PENDING initially
-                        .bookingDate(new java.util.Date())
+                        .paymentStatus(Booking.PaymentStatus.PENDING)
+                        .bookingDate(new Date())
                         .isBookingConfirmed(false)
                         .build();
+
+                logger.debug("Booking created with details: {}", booking);
                 return bookingRepository.save(booking);
             } else {
-                throw new RuntimeException("Not enough tickets available.");
+                logger.error("Insufficient tickets available for Tour ID: {}", tourId);
+                throw new InsufficientTicketsException("Not enough tickets available.");
             }
         } else {
-            throw new RuntimeException("Tour not found.");
+            logger.error("Tour not found for ID: {}", tourId);
+            throw new BookingNotFoundException("Tour not found.");
         }
     }
 
-
     // Confirm booking after payment
     public Booking confirmBooking(Long bookingId, String paymentIntent) {
+        logger.info("Confirming booking ID: {}, Payment Intent: {}", bookingId, paymentIntent);
+
         Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
         if (optionalBooking.isPresent()) {
             Booking booking = optionalBooking.get();
             Tour tour = booking.getTour();
 
-            // Check payment status and update availability
             if (booking.getPaymentStatus() == Booking.PaymentStatus.PENDING) {
-                // Simulate payment success (you may replace this with actual gateway integration)
                 booking.setPaymentStatus(Booking.PaymentStatus.SUCCESS);
                 booking.confirmBooking();
                 booking.setPaymentTransactionId(paymentIntent);
 
-                // Update ticket availability
-                if (booking.getPaymentStatus() == Booking.PaymentStatus.SUCCESS && booking.isBookingConfirmed()) {
-                    int ticketsAvailable = tour.getTicketsAvailable();
+                logger.debug("Booking confirmed for Booking ID: {}", bookingId);
 
-                    tourRepository.save(tour); // Save updated tour
-                    } else {
-                        throw new RuntimeException("Not enough tickets available.");
-                    }
+                int ticketsAvailable = tour.getTicketsAvailable();
+                if (ticketsAvailable >= booking.getNumberOfTickets()) {
+                    tour.setTicketsAvailable(ticketsAvailable - booking.getNumberOfTickets());
+                    tourRepository.save(tour);
+                } else {
+                    logger.error("Not enough tickets available for Booking ID: {}", bookingId);
+                    throw new InsufficientTicketsException("Not enough tickets available.");
                 }
-
-                // Save the booking confirmation
                 return bookingRepository.save(booking);
             } else {
-                throw new RuntimeException("Payment not successful or already processed.");
+                logger.error("Payment not successful or already processed for Booking ID: {}", bookingId);
+                throw new PaymentFailedException("Payment not successful or already processed.");
             }
+        } else {
+            logger.error("Booking not found for ID: {}", bookingId);
+            throw new BookingNotFoundException("Booking not found.");
         }
-//    @Transactional
-//    public Booking confirmBooking(Long bookingId, String paymentIntentId) {
-//        Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
-//        if (optionalBooking.isPresent()) {
-//            Booking booking = optionalBooking.get();
-//            Tour tour = booking.getTour();
-//
-//            try {
-//                // Retrieve PaymentIntent from Stripe to verify payment
-//                PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
-//
-//                // Verify payment status and amount
-//                if ("Succeeded".equals(paymentIntent.getStatus())) {
-//                    System.out.println(paymentIntent.getStatus());
-//                    booking.setPaymentStatus(Booking.PaymentStatus.SUCCESS);
-//                    booking.confirmBooking();
-//                    booking.setPaymentTransactionId(paymentIntentId);
-//
-//                    // Reduce ticket availability
-//                    tour.setTicketsAvailable(tour.getTicketsAvailable() - booking.getNumberOfTickets());
-//                    tourRepository.save(tour);
-//
-//                    return bookingRepository.save(booking);
-//                } else {
-//                    throw new RuntimeException("Payment verification failed.");
-//                }
-//            } catch (StripeException e) {
-//                throw new RuntimeException("Stripe payment verification error: " + e.getMessage());
-//            }
-//        } else {
-//            throw new RuntimeException("Booking not found.");
-//        }
-//    }
+    }
 
-
-    // Get ticket summary per tour (only considering successful payments)
+    // Get ticket summary per tour
     public List<Map<String, Object>> getTicketSummaryPerTour() {
+        logger.info("Generating ticket summary per tour");
         List<Tour> tours = tourRepository.findAll();
-
         List<Map<String, Object>> summary = tours.stream().map(tour -> {
-            // Count tickets only for bookings with successful payment
             int ticketsSold = Optional.ofNullable(
                     bookingRepository.countTicketsSoldForTourWithSuccessfulPayment(tour.getId(),
                             Booking.PaymentStatus.SUCCESS)
@@ -135,23 +109,26 @@ public class BookingService {
             tourSummary.put("ticketsSold", ticketsSold);
             tourSummary.put("ticketsAvailable", tour.getTicketsAvailable());
             tourSummary.put("totalRevenue", ticketsSold * tour.getPrice());
+
+            logger.debug("Summary for Tour ID {}: {}", tour.getId(), tourSummary);
             return tourSummary;
         }).toList();
 
+        logger.info("Ticket summary generation completed");
         return summary;
     }
 
-    // Updated method to get detailed booking and customer data for a specific tour
+    // Get detailed booking and customer data for a specific tour
     public Map<String, Object> getTourDetailsWithBookings(Long tourId) {
+        logger.info("Fetching tour details with bookings for Tour ID: {}", tourId);
+
         Optional<Tour> optionalTour = tourRepository.findById(tourId);
         if (optionalTour.isPresent()) {
             Tour tour = optionalTour.get();
 
-            // Fetch only bookings with successful payment
             List<Booking> bookings = bookingRepository.findByTourIdAndPaymentStatus(
-                    tourId,
-                    Booking.PaymentStatus.SUCCESS
-            );
+                    tourId, Booking.PaymentStatus.SUCCESS);
+
             int ticketsSold = Optional.ofNullable(
                     bookingRepository.countTicketsSoldForTourWithSuccessfulPayment(tour.getId(),
                             Booking.PaymentStatus.SUCCESS)
@@ -176,29 +153,19 @@ public class BookingService {
             tourDetails.put("ticketsSold", ticketsSold);
             tourDetails.put("bookings", bookingDetails);
 
+            logger.debug("Tour details with bookings for Tour ID {}: {}", tourId, tourDetails);
             return tourDetails;
         } else {
+            logger.error("Tour not found for ID: {}", tourId);
             return null;
         }
     }
 
-
-    // Method to filter tours based on criteria
+    // Filter tours based on criteria
     public List<Tour> filterTours(String country, String lodgingType, String transportType, Double minPrice, Double maxPrice) {
+        logger.info("Filtering tours with criteria - Country: {}, Lodging: {}, Transport: {}, Min Price: {}, Max Price: {}",
+                country, lodgingType, transportType, minPrice, maxPrice);
+
         return bookingRepository.filterTours(country, lodgingType, transportType, minPrice, maxPrice);
     }
-
-
-    // Method to search tours based on a search term
-//    public List<Tour> searchTours(String searchTerm) {
-//        if (searchTerm == null || searchTerm.trim().isEmpty()) {
-//            return tourRepository.findAll(); // Return all tours if no search term
-//        }
-//        return bookingRepository.searchTours(searchTerm.trim());
-//    }
-
-
 }
-
-
-

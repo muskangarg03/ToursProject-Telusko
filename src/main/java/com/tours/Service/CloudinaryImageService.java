@@ -8,16 +8,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Service
 public class CloudinaryImageService {
 
-    private static final Logger logger = Logger.getLogger(ImageService.class.getName());
+    private static final Logger logger = Logger.getLogger(CloudinaryImageService.class.getName());
 
     private final Cloudinary cloudinary;
 
-    // Constructor to initialize Cloudinary with credentials from application.properties
+    // Constructor initializes Cloudinary with credentials from application.properties
     public CloudinaryImageService(
             @Value("${cloudinary.cloud-name}") String cloudName,
             @Value("${cloudinary.api-key}") String apiKey,
@@ -28,109 +29,99 @@ public class CloudinaryImageService {
                 "api_key", apiKey,
                 "api_secret", apiSecret
         ));
+        logger.info("Cloudinary initialized with provided credentials.");
     }
 
-    // Method to upload an image to Cloudinary
+    // Upload an image to Cloudinary and return its URL
     public String uploadImage(MultipartFile file) {
+        logger.info("Starting image upload process.");
         try {
             if (file.isEmpty()) {
+                logger.warning("Upload failed: File is empty.");
                 throw new IllegalArgumentException("File is empty");
             }
 
             // Upload file to Cloudinary
-            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
-                    ObjectUtils.emptyMap());
-
-            // Return the secure URL of the uploaded image
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
             String imageUrl = (String) uploadResult.get("secure_url");
-
-            logger.info("Image uploaded successfully to Cloudinary: " + imageUrl);
+            logger.info("Image uploaded successfully to Cloudinary. URL: " + imageUrl);
             return imageUrl;
 
         } catch (IOException e) {
-            logger.severe("Failed to upload image to Cloudinary: " + e.getMessage());
+            logger.log(Level.SEVERE, "IOException during image upload: " + e.getMessage(), e);
             throw new RuntimeException("Failed to upload image: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            logger.warning(e.getMessage());
-            throw new RuntimeException(e.getMessage());
         }
     }
 
-    // Method to update an existing image in Cloudinary
+    // Update an existing image in Cloudinary
     public String updateImage(String oldImageUrl, MultipartFile newFile) {
+        logger.info("Starting image update process.");
         try {
             if (newFile == null || newFile.isEmpty()) {
+                logger.warning("Update failed: New file is empty or null.");
                 throw new IllegalArgumentException("New file is empty or null");
             }
 
-            // If an old image URL exists, try to delete it from Cloudinary
+            // Delete old image if a URL is provided
             if (oldImageUrl != null && !oldImageUrl.trim().isEmpty()) {
+                logger.info("Deleting old image: " + oldImageUrl);
                 try {
-                    // Extract public ID from the Cloudinary URL
                     String publicId = extractPublicIdFromUrl(oldImageUrl);
-
-                    // Delete the old image from Cloudinary
                     if (publicId != null) {
-                        Map<?, ?> deleteResult = cloudinary.uploader().destroy(publicId,
-                                ObjectUtils.emptyMap());
-                        logger.info("Old image deleted from Cloudinary: " + deleteResult);
+                        cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                        logger.info("Old image deleted successfully.");
                     }
                 } catch (Exception e) {
-                    logger.warning("Could not delete old image from Cloudinary: " + e.getMessage());
+                    logger.log(Level.WARNING, "Could not delete old image: " + e.getMessage(), e);
                 }
             }
 
-            // Upload the new file to Cloudinary
+            // Upload new image and return its URL
             return uploadImage(newFile);
 
         } catch (RuntimeException e) {
-            logger.severe("Failed to update image in Cloudinary: " + e.getMessage());
+            logger.log(Level.SEVERE, "Failed to update image: " + e.getMessage(), e);
             throw new RuntimeException("Failed to update image: " + e.getMessage());
         }
     }
 
-    // Method to delete an image from Cloudinary
+    // Delete an image from Cloudinary using its URL
     public void deleteImage(String imageUrl) {
+        logger.info("Starting image deletion process.");
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
-            logger.warning("Attempted to delete null or empty image URL");
+            logger.warning("Deletion failed: Image URL is null or empty.");
             return;
         }
 
         try {
-            // Extract public ID from the Cloudinary URL
+            // Extract the public ID from the provided URL and delete the image
             String publicId = extractPublicIdFromUrl(imageUrl);
-
-            if (publicId == null) {
-                logger.warning("Could not extract public ID from URL: " + imageUrl);
-                return;
+            if (publicId != null) {
+                cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                logger.info("Image deleted successfully.");
             }
-
-            // Delete the image from Cloudinary
-            Map<?, ?> deleteResult = cloudinary.uploader().destroy(publicId,
-                    ObjectUtils.emptyMap());
-
-            logger.info("Image deleted successfully from Cloudinary: " + deleteResult);
-
         } catch (IOException e) {
-            logger.severe("Failed to delete image from Cloudinary: " + e.getMessage());
+            logger.log(Level.SEVERE, "Failed to delete image: " + e.getMessage(), e);
             throw new RuntimeException("Failed to delete image: " + e.getMessage());
         }
     }
 
-    // Helper method to extract public ID from Cloudinary URL
+    // Extract the public ID from the Cloudinary URL to perform operations like deletion
     private String extractPublicIdFromUrl(String url) {
+        logger.info("Extracting public ID from URL: " + url);
         if (url == null) return null;
 
-        // Cloudinary URLs typically end with /upload/v{version}/{publicId}
         String[] urlParts = url.split("/");
         for (int i = 0; i < urlParts.length; i++) {
             if (urlParts[i].equals("upload") && i + 2 < urlParts.length) {
-                // Get the public ID, removing file extension
                 String publicId = urlParts[i + 2];
                 int dotIndex = publicId.lastIndexOf('.');
-                return dotIndex > 0 ? publicId.substring(0, dotIndex) : publicId;
+                publicId = dotIndex > 0 ? publicId.substring(0, dotIndex) : publicId;
+                logger.info("Public ID extracted: " + publicId);
+                return publicId;
             }
         }
+        logger.warning("Public ID could not be extracted from URL: " + url);
         return null;
     }
 }

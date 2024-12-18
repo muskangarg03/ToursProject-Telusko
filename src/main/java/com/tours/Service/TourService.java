@@ -12,6 +12,9 @@ import com.tours.Repo.TourRepo;
 import com.tours.Repo.LocationRepo;
 import com.tours.Repo.LodgingRepo;
 import com.tours.Repo.TransportRepo;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +50,8 @@ public class TourService {
     private TransportService transportService;
 
     // Save a new tour
+    @CachePut(value = "toursCache", key = "#result.id")
+    @CacheEvict(value = "toursCache", key = "'allTours'")
     public Tour saveTour(Tour tour, Long locationId, Long lodgingId, Long transportId) {
         logger.info("Saving a new tour with ID: " + tour.getId());
 
@@ -67,12 +72,14 @@ public class TourService {
     }
 
     // Get all tours with their details
+    @Cacheable(value = "toursCache", key = "'allTours'")
     public List<Tour> getAllToursWithDetails() {
         logger.info("Fetching all tours with details.");
         return tourRepo.findAllToursWithDetails();
     }
 
     // Get a tour by its ID
+    @Cacheable(value = "toursCache", key = "#id")
     public Optional<Tour> getTourById(Long id) {
         logger.info("Fetching tour with ID: " + id);
         return Optional.ofNullable(tourRepo.findById(id)
@@ -81,6 +88,7 @@ public class TourService {
 
     // Delete a tour by its ID with associated location, lodging, and transport
     @Transactional
+    @CacheEvict(value = "toursCache", allEntries = true)
     public void deleteTour(Long id) {
         logger.info("Deleting tour with ID: " + id);
         Tour tour = tourRepo.findById(id)
@@ -111,6 +119,8 @@ public class TourService {
 
     // Update a tour with associations
     @Transactional
+    @CachePut(value = "toursCache", key = "#tourId")
+    @CacheEvict(value = "toursCache", key = "'allTours'")
     public Tour updateTourWithAssociations(Long tourId, Tour updatedTour) {
         logger.info("Updating tour with ID: " + tourId);
         Tour existingTour = tourRepo.findById(tourId)

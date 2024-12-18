@@ -1,10 +1,11 @@
-
 package com.tours.Config;
 
 import com.tours.Service.CustomOAuth2UserService;
 import com.tours.Service.CustomUserDetailsService;
 import com.tours.Service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,8 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
     @Autowired
     private JwtFilter jwtFilter;
 
@@ -45,21 +48,25 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
+        logger.info("Configuring CustomUserDetailsService bean.");
         return new CustomUserDetailsService();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        logger.info("Configuring BCryptPasswordEncoder bean.");
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        logger.info("Configuring AuthenticationManager bean.");
         return config.getAuthenticationManager();
     }
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
+        logger.info("Configuring DaoAuthenticationProvider bean.");
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService());
         provider.setPasswordEncoder(passwordEncoder());
@@ -68,22 +75,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        logger.info("Configuring HTTP Security filters.");
         return http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> {
+                    logger.info("Configuring CORS with allowed origins and methods.");
+                    cors.configurationSource(corsConfigurationSource());
+                })
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/signup", "/auth/login",
-                                "/error").permitAll()
+                        .requestMatchers("/auth/signup", "/auth/login", "/login/oauth2", "/error").permitAll()
                         .requestMatchers("/auth/admin/**", "/admin/**").hasRole("ADMIN")
                         .requestMatchers("/auth/customer/**", "/customer/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
-//                        .loginPage("/login")
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oauth2LoginSuccessHandler))
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
@@ -91,6 +98,7 @@ public class SecurityConfig {
                             if (token != null && token.startsWith("Bearer ")) {
                                 token = token.substring(7);
                                 JwtFilter.addToBlacklist(token);
+                                logger.info("Token has been blacklisted after logout.");
                             }
                             response.setStatus(HttpServletResponse.SC_OK);
                             response.getWriter().write("{\"message\":\"Logout Successful\"}");
@@ -102,6 +110,7 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        logger.info("Configuring CORS Configuration.");
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Replace with your frontend URL
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
@@ -111,6 +120,8 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
+        logger.info("CORS Configuration successfully set.");
         return source;
     }
 }
