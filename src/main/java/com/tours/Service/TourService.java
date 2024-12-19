@@ -94,9 +94,30 @@ public class TourService {
     }
 
     // Get a tour by its ID
+//    @Transactional(readOnly = true)
+//    @Cacheable(value = "toursCache", key = "#id")
+//    public Optional<Tour> getTourById(Long id) {
+//        logger.info("Fetching tour with ID: " + id);
+//        Tour tour = tourRepo.findById(id)
+//                .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id));
+//
+//        // Eagerly initialize collections
+//        Hibernate.initialize(tour.getMeals());
+//        Hibernate.initialize(tour.getActivities());
+//        Hibernate.initialize(tour.getTourImages());
+//
+//        // Initialize associated entities
+//        if (tour.getLocation() != null) Hibernate.initialize(tour.getLocation());
+//        if (tour.getLodging() != null) Hibernate.initialize(tour.getLodging());
+//        if (tour.getTransport() != null) Hibernate.initialize(tour.getTransport());
+//
+//        return Optional.of(tour);
+////        return Optional.ofNullable(tourRepo.findById(id)
+////                .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id)));
+//    }
     @Transactional(readOnly = true)
     @Cacheable(value = "toursCache", key = "#id")
-    public Optional<Tour> getTourById(Long id) {
+    public Tour getTourById(Long id) {
         logger.info("Fetching tour with ID: " + id);
         Tour tour = tourRepo.findById(id)
                 .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id));
@@ -111,10 +132,10 @@ public class TourService {
         if (tour.getLodging() != null) Hibernate.initialize(tour.getLodging());
         if (tour.getTransport() != null) Hibernate.initialize(tour.getTransport());
 
-        return Optional.of(tour);
-//        return Optional.ofNullable(tourRepo.findById(id)
-//                .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id)));
+        return tour;  // Return the Tour directly instead of wrapping in Optional
     }
+
+
 
     // Delete a tour by its ID with associated location, lodging, and transport
     @Transactional

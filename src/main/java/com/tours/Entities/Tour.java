@@ -32,13 +32,13 @@ public class Tour implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date endDate;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tour_meals", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "meal")
     @Builder.Default
     private List<String> meals = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tour_activities", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "activity")
     @Builder.Default
@@ -47,7 +47,7 @@ public class Tour implements Serializable {
     private Double price;
     private Integer ticketsAvailable;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tour_images", joinColumns = @JoinColumn(name = "tour_id"))
     @Column(name = "image")
     @Builder.Default
