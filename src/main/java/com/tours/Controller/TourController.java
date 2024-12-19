@@ -4,7 +4,6 @@ package com.tours.Controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tours.Entities.Tour;
-import com.tours.Exception.TourNotFoundException;
 import com.tours.Repo.LocationRepo;
 import com.tours.Repo.LodgingRepo;
 import com.tours.Repo.TransportRepo;
@@ -94,14 +93,11 @@ public class TourController {
                     "If the tour ID does not exist, a 404 Not Found status is returned."
     )
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')") // Restricting access to users with ADMIN role
     public ResponseEntity<Tour> getTourById(@PathVariable Long id) {
-        try {
-            Tour tour = tourService.getTourById(id);
-            return ResponseEntity.ok(tour);
-        } catch (TourNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return tourService.getTourById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // API to update a tour based on given id along with associated location, lodging, transport details
@@ -141,12 +137,16 @@ public class TourController {
     }
 
     // API to delete a tour based on given id along with associated location, lodging, transport details
+    @Operation(
+            summary = "Delete a tour",
+            description = "Deletes a specific tour by its ID along with associated images."
+    )
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')") // Restricting access to users with ADMIN role
     public ResponseEntity<Void> deleteTour(@PathVariable Long id) {
         try {
             // Retrieve the tour to get image URLs before deletion
-            Tour tour = tourService.getTourById(id);
+            Tour tour = tourService.getTourById(id).orElseThrow(() -> new RuntimeException("Tour not found"));
 
             // Delete associated images
             for (String imageUrl : tour.getTourImages()) {
@@ -156,7 +156,7 @@ public class TourController {
             // Delete the tour
             tourService.deleteTour(id);
             return ResponseEntity.noContent().build();
-        } catch (TourNotFoundException e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }

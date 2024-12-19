@@ -13,9 +13,6 @@ import com.tours.Repo.LocationRepo;
 import com.tours.Repo.LodgingRepo;
 import com.tours.Repo.TransportRepo;
 import org.hibernate.Hibernate;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,8 +48,6 @@ public class TourService {
     private TransportService transportService;
 
     // Save a new tour
-    @CachePut(value = "toursCache", key = "#result.id")
-    @CacheEvict(value = "toursCache", key = "'allTours'")
     public Tour saveTour(Tour tour, Long locationId, Long lodgingId, Long transportId) {
         logger.info("Saving a new tour with ID: " + tour.getId());
 
@@ -73,8 +68,7 @@ public class TourService {
     }
 
     // Get all tours with their details
-    @Transactional(readOnly = true)
-    @Cacheable(value = "toursCache", key = "'allTours'")
+    @Transactional
     public List<Tour> getAllToursWithDetails() {
         logger.info("Fetching all tours with details.");
         List<Tour> tours = tourRepo.findAllToursWithDetails();
@@ -94,30 +88,8 @@ public class TourService {
     }
 
     // Get a tour by its ID
-//    @Transactional(readOnly = true)
-//    @Cacheable(value = "toursCache", key = "#id")
-//    public Optional<Tour> getTourById(Long id) {
-//        logger.info("Fetching tour with ID: " + id);
-//        Tour tour = tourRepo.findById(id)
-//                .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id));
-//
-//        // Eagerly initialize collections
-//        Hibernate.initialize(tour.getMeals());
-//        Hibernate.initialize(tour.getActivities());
-//        Hibernate.initialize(tour.getTourImages());
-//
-//        // Initialize associated entities
-//        if (tour.getLocation() != null) Hibernate.initialize(tour.getLocation());
-//        if (tour.getLodging() != null) Hibernate.initialize(tour.getLodging());
-//        if (tour.getTransport() != null) Hibernate.initialize(tour.getTransport());
-//
-//        return Optional.of(tour);
-////        return Optional.ofNullable(tourRepo.findById(id)
-////                .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id)));
-//    }
-    @Transactional(readOnly = true)
-    @Cacheable(value = "toursCache", key = "#id")
-    public Tour getTourById(Long id) {
+    @Transactional
+    public Optional<Tour> getTourById(Long id) {
         logger.info("Fetching tour with ID: " + id);
         Tour tour = tourRepo.findById(id)
                 .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id));
@@ -132,14 +104,13 @@ public class TourService {
         if (tour.getLodging() != null) Hibernate.initialize(tour.getLodging());
         if (tour.getTransport() != null) Hibernate.initialize(tour.getTransport());
 
-        return tour;  // Return the Tour directly instead of wrapping in Optional
+        return Optional.of(tour);
+//        return Optional.ofNullable(tourRepo.findById(id)
+//                .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id)));
     }
-
-
 
     // Delete a tour by its ID with associated location, lodging, and transport
     @Transactional
-    @CacheEvict(value = "toursCache", allEntries = true)
     public void deleteTour(Long id) {
         logger.info("Deleting tour with ID: " + id);
         Tour tour = tourRepo.findById(id)
@@ -170,8 +141,6 @@ public class TourService {
 
     // Update a tour with associations
     @Transactional
-    @CachePut(value = "toursCache", key = "#tourId")
-    @CacheEvict(value = "toursCache", key = "'allTours'")
     public Tour updateTourWithAssociations(Long tourId, Tour updatedTour) {
         logger.info("Updating tour with ID: " + tourId);
         Tour existingTour = tourRepo.findById(tourId)

@@ -7,16 +7,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Entity
 @Table(name = "locations")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Location implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

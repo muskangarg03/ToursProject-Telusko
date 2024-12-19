@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 
 @Entity
 @Table(name = "transports")
@@ -15,8 +14,8 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Transport implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Transport {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

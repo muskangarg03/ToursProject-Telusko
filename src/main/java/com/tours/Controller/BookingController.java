@@ -8,7 +8,6 @@ import com.stripe.param.checkout.SessionCreateParams;
 import com.tours.Entities.Booking;
 import com.tours.Entities.Tour;
 import com.tours.Entities.Users;
-import com.tours.Exception.TourNotFoundException;
 import com.tours.Repo.TourRepo;
 import com.tours.Repo.UserRepo;
 import com.tours.Service.BookingService;
@@ -76,6 +75,7 @@ public class BookingController {
         ));
     }
 
+    @Operation(summary = "Get tour by ID", description = "Fetches details of a specific tour by its ID.")
     @GetMapping("customer/tours/{id}")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<?> getTourById(@PathVariable Long id) {
@@ -85,16 +85,13 @@ public class BookingController {
                     .body(Map.of("message", "User is not logged in."));
         }
 
-        try {
-            Tour tour = tourService.getTourById(id);
-            return ResponseEntity.ok(Map.of(
-                    "message", "User: " + loggedInUser.getEmail() + " is viewing the tour.",
-                    "tourDetails", tour
-            ));
-        } catch (TourNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Tour not found with ID: " + id));
-        }
+        return tourService.getTourById(id)
+                .map(tour -> ResponseEntity.ok(Map.of(
+                        "message", "User: " + loggedInUser.getEmail() + " is viewing the tour.",
+                        "tourDetails", tour
+                )))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "Tour not found with ID: " + id)));
     }
 
     @Operation(summary = "Create payment intent", description = "Generates a payment intent for booking a tour.")
