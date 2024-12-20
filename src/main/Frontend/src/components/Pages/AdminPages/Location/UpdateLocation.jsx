@@ -54,7 +54,7 @@ const LocationUpdateModal = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Lodging Description
+              Location Description
             </label>
             <textarea
               name="locationDescription"

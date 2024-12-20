@@ -156,6 +156,10 @@ const Dashboard = () => {
 
   const handleDelete = async (tour) => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return;
+      }
       const tourId = tour.id;
       const response = await dispatch(deleteTour(tourId));
       if (response.payload.status === 204) {

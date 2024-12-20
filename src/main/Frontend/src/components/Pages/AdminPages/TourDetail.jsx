@@ -82,7 +82,7 @@ const TourDetailsPage = () => {
       toast.success("transport updated");
     } catch (error) {
       console.error("Error updating location:", error);
-      toast.error("Failed to update location");
+      toast.error("Failed to update transport");
     }
   };
 
@@ -105,7 +105,7 @@ const TourDetailsPage = () => {
       toast.success("lodging updated");
     } catch (error) {
       console.error("Error updating location:", error);
-      toast.error("Failed to update location");
+      toast.error("Failed to update lodging");
     }
   };
   const [tourImages, setTourImages] = useState([]);
@@ -132,7 +132,7 @@ const TourDetailsPage = () => {
     };
 
     fetchTourData();
-  }, [tourId, dispatch]);
+  }, [tourId, dispatch,navigate]);
 
   const nextImage = () => {
     setCurrentImageIndex((prevIndex) =>

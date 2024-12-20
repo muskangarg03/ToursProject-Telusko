@@ -79,6 +79,10 @@ export const fetchTourDetails = createAsyncThunk(
 
 export const adminTransport = createAsyncThunk("adminTransport", async () => {
   try {
+    const token = localStorage.getItem('token');
+    if(!token){
+      return;
+    }
     const response = axios.get(`${baseUrl}/admin/transports`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -112,6 +116,10 @@ export const adminLocation = createAsyncThunk("adminLocation", async () => {
 
 export const deleteTour = createAsyncThunk("deleteTour", async (tourId) => {
   try {
+    const token = localStorage.getItem('token');
+    if(!token){
+      return;
+    }
     const response = axios.delete(`${baseUrl}/admin/tours/${tourId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -170,6 +178,10 @@ export const updateTour = createAsyncThunk(
 export const editLocation = createAsyncThunk(
   "editLocation",
   async ({ locationId, updatedLocation }) => {
+    const token = localStorage.getItem("token");
+    if(!token){
+      return;
+    }
     const response = await axios.put(
       `${baseUrl}/admin/locations/${locationId}`,
       updatedLocation,
@@ -189,6 +201,7 @@ export const editLocation = createAsyncThunk(
 export const editTransport = createAsyncThunk(
   "editTransport",
   async ({ transportId, updatedTransport }) => {
+    const token = localStorage.getItem("token");
     if(!token){
       return;
     }
@@ -211,6 +224,10 @@ export const editTransport = createAsyncThunk(
 export const editLodging = createAsyncThunk(
   "editLodging",
   async ({ lodgingId, updatedLodging }) => {
+    const token = localStorage.getItem("token");
+    if(!token){
+      return;
+    }
     const response = await axios.put(
       `${baseUrl}/admin/lodgings/${lodgingId}`,
       updatedLodging,
