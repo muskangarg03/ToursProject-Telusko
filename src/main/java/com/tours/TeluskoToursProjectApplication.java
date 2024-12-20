@@ -10,7 +10,7 @@ import java.io.IOException;
 public class TeluskoToursProjectApplication {
 
 	public static void main(String[] args) {
-		clearLogFile("C://Users//DELL//Downloads//TeluskoToursProject//TeluskoToursProject//src//main//java//com//tours//Logging//app.log");
+		clearLogFile("C://Users//DELL//Downloads//ToursProject-Telusko//src//main//java//com//tours//Logging//app.log");
 //		clearLogFile("E://New Tour//ToursProject-Telusko//src//main//java//com//tours//Logging//app.log");
 		SpringApplication.run(TeluskoToursProjectApplication.class, args);
 		System.out.println("Hello....git ..");

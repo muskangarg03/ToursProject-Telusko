@@ -41,13 +41,4 @@ public interface BookingRepo extends JpaRepository<Booking, Long> {
                            @Param("transportType") String transportType,
                            @Param("minPrice") Double minPrice,
                            @Param("maxPrice") Double maxPrice);
-
-
-    //Search Tours Based on TourName and TourDescription
-//    @Query("SELECT DISTINCT t FROM Tour t " +
-//            "WHERE (:searchTerm IS NULL OR " +
-//            "LOWER(t.tourName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-//            "LOWER(t.tourDescription) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
-//    List<Tour> searchTours(@Param("searchTerm") String searchTerm);
-
 }
