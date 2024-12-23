@@ -109,6 +109,25 @@ A platform to streamline tour management for administrators and provide customer
   stripe.publishable.key= your-publishable-key
   ```
 
+### **Frontend Installation with VS Code**
+
+1. **Open Frontend Folder**:  
+   To open the frontend folder, navigate to `src/main/Frontend`.
+
+2. **File Initialization**:  
+   Create a file named `.env` inside the root directory of the frontend folder.  
+   Write the following inside your `.env` file:  
+   `VITE_BASE_URL = YOUR BACKEND URL`
+
+3. **Module Initialization**:  
+   Inside the frontend folder, run `npm install` at the root path to install the node modules.
+
+4. **Start Project**:  
+   Inside the frontend folder, run `npm run dev` at the root path to start your React-Vite application.  
+   Most likely, your Vite project will run on the port `5173`. Click on the `https://localhost:5173` URL to open your project in the browser.
+
+
+
   
   
 
