@@ -19,12 +19,12 @@ A platform to streamline tour management for administrators and provide customer
 - **Tour Booking**: Check availability, confirm bookings, and process payments.  
 
 ### Functional Modules  
-#### **User Authentication (Role-Based Access)**  
-#### **Location Module**  
-#### **Lodging Module**  
-#### **Transport Module**  
-#### **Tour Module**  
-#### **Tour Booking Module**  
+#### - **User Authentication (Role-Based Access)**  
+#### - **Location Module**  
+#### - **Lodging Module**  
+#### - **Transport Module**  
+#### - **Tour Module**  
+#### - **Tour Booking Module**  
 
 
 ## Installation
