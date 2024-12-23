@@ -135,6 +135,10 @@ export const deleteTour = createAsyncThunk("deleteTour", async (tourId) => {
 
 export const adminLodging = createAsyncThunk("adminLodging", async () => {
   try {
+    const token = localStorage.getItem('token');
+    if(!token){
+      return;
+    }
     const response = axios.get(`${baseUrl}/admin/lodgings`, {
       headers: {
         Authorization: `Bearer ${token}`,

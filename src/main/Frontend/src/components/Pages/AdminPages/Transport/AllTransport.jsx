@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { adminTransport } from "../../../../Redux/API/API";
-import { Train, Bus, Clock, Info } from "lucide-react";
+import { Train, Bus, Clock, Info, Plane, Car } from "lucide-react";
 
 const TransportCard = ({ transport }) => {
   const getTransportIcon = (type) => {
@@ -10,6 +10,10 @@ const TransportCard = ({ transport }) => {
         return <Train className="w-6 h-6 text-blue-600" />;
       case "Bus":
         return <Bus className="w-6 h-6 text-green-600" />;
+        case "Flight":
+          return <Plane className="w-6 h-6 text-red-600" />;
+          case "Private Vehicle":
+            return <Car className="w-6 h-6 text-green-600" />;
       default:
         return <Info className="w-6 h-6 text-gray-500" />;
     }
