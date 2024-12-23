@@ -127,6 +127,37 @@ A platform to streamline tour management for administrators and provide customer
    Most likely, your Vite project will run on the port `5173`. Click on the `https://localhost:5173` URL to open your project in the browser.
 
 
+### **Frontend Features**
+
+1. **Role-Based Access and Functionality**
+    - Implementation of route protection and dynamic rendering of components based on user roles (e.g., Admin, User).
+    - Each role has specific access permissions to designated pages and functionalities.
+    - Non-authorized users are restricted from accessing or performing unauthorized actions.
+
+2. **Light and Dark Mode**
+    - Login and Signup pages feature a toggle for light and dark themes.
+
+3. **Loader During API Fetch**
+    - Displays a spinner or progress indicator during API calls.
+    - Enhances user experience by informing users of ongoing processes.
+
+4. **Redux for State Management**
+    - Utilizes Redux to manage application state.
+    - Uses `useDispatch` for dispatching actions, ensuring a predictable state management flow.
+
+5. **WhatsApp Integration**
+    - Integration with the WhatsApp API for seamless communication.
+    - Allows users to send messages directly from the application.
+
+6. **Tailwind CSS for Modern Styling**
+    - Adoption of Tailwind CSS for consistent and modern UI design.
+    - Simplifies responsive styling with utility-first CSS classes.
+
+7. **Responsive Design**
+    - Fully responsive UI adaptable to different screen sizes and devices.
+    - Ensures optimal user experience across desktop, tablet, and mobile devices.
+
+
 
   
   
