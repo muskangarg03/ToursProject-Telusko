@@ -27,6 +27,41 @@ A platform to streamline tour management for administrators and provide customer
 #### - **Tour Booking Module**  
 
 
+## Technologies Used
+
+### Backend Frameworks
+* [![Spring Boot][SpringBoot.io]][SpringBoot-url]
+* [![Spring][Spring.io]][Spring-url]
+* [![OAuth2][OAuth2.io]][OAuth2-url]
+* [![Swagger][Swagger.io]][Swagger-url]
+
+### Programming Languages
+* [![Java][Java.io]][Java-url]
+* [![JavaScript][JavaScript.io]][JavaScript-url]
+
+### Frontend
+* [![React][React.js]][React-url]
+* [![Redux][Redux.js]][Redux-url]
+* [![Tailwind CSS][TailwindCSS.io]][TailwindCSS-url]
+* [![React Router][ReactRouter.io]][ReactRouter-url]
+
+### Database
+* [![PostgreSQL][PostgreSQL.io]][PostgreSQL-url]
+
+### Cloud Services
+* [![Cloudinary][Cloudinary.io]][Cloudinary-url]
+
+### Payment Gateway
+* [![Stripe][Stripe.dev]][Stripe-url]
+
+### Version Control System
+* [![Git][Git.io]][Git-url]
+* [![GitHub][GitHub.com]][GitHub-url]
+
+### API Testing Tools
+* [![Postman][Postman.io]][Postman-url]
+
+
 ## Installation
 ### **Clone the Repository**
    ```bash
@@ -109,6 +144,12 @@ A platform to streamline tour management for administrators and provide customer
   stripe.publishable.key= your-publishable-key
   ```
 
+### 3. Run the Application
+   - In IntelliJ, navigate to the ToursAndTravelsApplication class.
+   - Right-click the class and select Run.
+   - Backend application will run at the URL : http://localhost:8080.
+     
+
 ### **Frontend Installation with VS Code**
 
 1. **Open Frontend Folder**:  
@@ -124,7 +165,7 @@ A platform to streamline tour management for administrators and provide customer
 
 4. **Start Project**:  
    Inside the frontend folder, run `npm run dev` at the root path to start your React-Vite application.  
-   Most likely, your Vite project will run on the port `5173`. Click on the `https://localhost:5173` URL to open your project in the browser.
+   Most likely, your Vite project will run on port `5173`. Click on the `https://localhost:5173` URL to open your project in the browser.
 
 
 ### **Frontend Features**
