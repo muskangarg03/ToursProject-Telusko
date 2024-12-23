@@ -1,4 +1,3 @@
-readme_content = """
 # Tours & Travels Management System  
 
 A platform to streamline tour management for administrators and provide customers with an intuitive interface to explore and book travel plans. The system ensures secure and efficient data handling for destinations, lodging, transport, and bookings.  
@@ -27,39 +26,97 @@ A platform to streamline tour management for administrators and provide customer
 #### **Tour Module**  
 #### **Tour Booking Module**  
 
+
+## Installation
+### **Clone the Repository**
+   ```bash
+   git clone https://github.com/muskangarg03/ToursProject-Telusko.git
+   cd tours-and-travels-backend
+  ```
   
-## Installation  
+### **Backend Installation with IntelliJ IDEA**
 
-## Step 1: Clone the Repository
-echo "Cloning the repository..."
-git clone https://github.com/<username>/ToursProject-Telusko.git
-cd ToursProject-Telusko || { echo "Failed to navigate to project directory"; exit 1; }
-echo "Repository cloned and navigated to project root."
+### 1. Open the Project in IntelliJ
+- Launch IntelliJ IDEA.
+- Click **File** > **Open** and select the `ToursProject-Telusko` folder.
+- Import the Maven dependencies.
+- Used Versions:
+    **JDK Version** : 21
+    **Springboot** : 3
+    **Spring** : 6
+### 2. Configure the Application
+- Navigate to `src/main/resources/application.properties`.
+- Update the database, cloudinary, stripe, outh2 configuration.
 
-## Step 2: Backend Setup
-echo "Setting up the backend..."
-echo "Open IntelliJ IDEA and follow these steps:"
-echo "1. Open the root directory of the project in IntelliJ IDEA."
-echo "2. Import the project as a Maven project when prompted."
-echo "3. Wait for IntelliJ to download all Maven dependencies."
-echo "4. Set up a Spring Boot configuration with the main class as 'TeluskoToursProjectApplication'."
-echo "5. Configure the database in 'src/main/resources/application.properties' (default: H2 in-memory)."
-echo "6. Run the backend application."
+  #### PostgreSQL Configuration
+  ```
+  spring.datasource.url= jdbc:postgresql://localhost:5432/TeluskoTours
+  spring.datasource.username= your_username
+  spring.datasource.password= your_password
+  spring.datasource.driver-class-name= org.postgresql.Driver
+  spring.jpa.properties.hibernate.dialect= org.hibernate.dialect.PostgreSQLDialect
+  ```
 
-## Step 3: Frontend Setup
-echo "Setting up the frontend..."
-cd src/main/Frontend || { echo "Frontend directory not found"; exit 1; }
+  #### OAuth2 Configuration
+  Steps to Generate Keys and Credentials:
+  1. **Google Cloud Console**:  
+  Visit [Google Cloud Console](https://console.cloud.google.com/) and log in.
+  2. **Create Project**:  
+  Click New Project, name it, and create.
+  3. **Enable APIs**:  
+  Go to **APIs & Services > Library**, enable the following:  
+   - Google+ API  
+   - Google Identity API
+  4. **Create Credentials**:  
+  Navigate to **APIs & Services > Credentials**, select **OAuth 2.0 Client ID**, configure the consent screen, and set the redirect URI:  
+   ```bash
+   http://localhost:8080/login/oauth2/code/google
+   ```
+   
+   ```
+  spring.security.oauth2.client.registration.google.client-name= google
+  spring.security.oauth2.client.registration.google.client-id= your_client-id
+  spring.security.oauth2.client.registration.google.client-secret= your_client-secret
+  spring.security.oauth2.client.registration.google.scope= openid, email, profile
+  spring.security.oauth2.client.registration.google.redirect-uri= http://localhost:8080/login/oauth2/code/google
+  ```
 
-echo "Installing dependencies..."
-npm install || { echo "npm install failed! Ensure Node.js and npm are installed."; exit 1; }
 
-echo "Starting the development server..."
-npm start || { echo "npm start failed! Please check for errors."; exit 1; }
+  #### Cloudinary Configuration
+  Steps to Generate Keys and Credentials:
+  1. **Create Account**:  
+  Sign up or log in at Cloudinary.
+  2. **Retrieve Credentials**:  
+  From the dashboard, copy Cloud Name, API Key, API Secret.
+  
+  ```
+  cloudinary.cloud-name= your_cloud-name
+  cloudinary.api-key= your_api-key
+  cloudinary.api-secret= your_api-secret
+  ```
 
-echo "Frontend is running at http://localhost:3000"
-echo "Backend should be running at http://localhost:8080"
+  #### Stripe Configuration
+  Steps to Generate Keys and Credentials:
+  1. **Create Account**:  
+  Sign up or log in at Stripe.
+  2. **Retrieve Credentials**:  
+  Go to Developers > API Keys and copy the following:
+    - Secret Key (server-side)
+    - Publishable Key (client-side)
+      
+  ```
+  stripe.secret.key= your_secret-key
+  stripe.publishable.key= your-publishable-key
+  ```
 
-# Final Message
-echo "Setup Complete! Open IntelliJ IDEA for backend development and VS Code for frontend development."
+  
+  
+
+
+
+
+
+
+
 
 
