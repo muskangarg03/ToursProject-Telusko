@@ -1,9 +1,6 @@
 package com.tours.Service;
 
-import com.tours.Entities.Tour;
-import com.tours.Entities.Location;
-import com.tours.Entities.Lodging;
-import com.tours.Entities.Transport;
+import com.tours.Entities.*;
 import com.tours.Exception.TourNotFoundException;
 import com.tours.Exception.LocationNotFoundException;
 import com.tours.Exception.LodgingNotFoundException;
@@ -12,7 +9,6 @@ import com.tours.Repo.TourRepo;
 import com.tours.Repo.LocationRepo;
 import com.tours.Repo.LodgingRepo;
 import com.tours.Repo.TransportRepo;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +43,9 @@ public class TourService {
     @Autowired
     private TransportService transportService;
 
+    @Autowired
+    private BookingService bookingService;
+
     // Save a new tour
     public Tour saveTour(Tour tour, Long locationId, Long lodgingId, Long transportId) {
         logger.info("Saving a new tour with ID: " + tour.getId());
@@ -72,19 +71,7 @@ public class TourService {
     public List<Tour> getAllToursWithDetails() {
         logger.info("Fetching all tours with details.");
         List<Tour> tours = tourRepo.findAllToursWithDetails();
-        // Eagerly initialize collections for each tour
-        tours.forEach(tour -> {
-            Hibernate.initialize(tour.getMeals());
-            Hibernate.initialize(tour.getActivities());
-            Hibernate.initialize(tour.getTourImages());
-
-            // Initialize associated entities
-            if (tour.getLocation() != null) Hibernate.initialize(tour.getLocation());
-            if (tour.getLodging() != null) Hibernate.initialize(tour.getLodging());
-            if (tour.getTransport() != null) Hibernate.initialize(tour.getTransport());
-        });
-
-        return tours;
+        return tourRepo.findAllToursWithDetails();
     }
 
     // Get a tour by its ID
@@ -94,19 +81,9 @@ public class TourService {
         Tour tour = tourRepo.findById(id)
                 .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id));
 
-        // Eagerly initialize collections
-        Hibernate.initialize(tour.getMeals());
-        Hibernate.initialize(tour.getActivities());
-        Hibernate.initialize(tour.getTourImages());
 
-        // Initialize associated entities
-        if (tour.getLocation() != null) Hibernate.initialize(tour.getLocation());
-        if (tour.getLodging() != null) Hibernate.initialize(tour.getLodging());
-        if (tour.getTransport() != null) Hibernate.initialize(tour.getTransport());
-
-        return Optional.of(tour);
-//        return Optional.ofNullable(tourRepo.findById(id)
-//                .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id)));
+        return Optional.ofNullable(tourRepo.findById(id)
+                .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id)));
     }
 
     // Delete a tour by its ID with associated location, lodging, and transport
@@ -115,6 +92,11 @@ public class TourService {
         logger.info("Deleting tour with ID: " + id);
         Tour tour = tourRepo.findById(id)
                 .orElseThrow(() -> new TourNotFoundException("Tour not found with id " + id));
+
+        // First delete all bookings associated with this tour
+        bookingService.deleteBookingsByTourId(id);
+        logger.info("Associated bookings deleted for Tour ID: " + id);
+
 
         // Delete associated entities if they exist
         if (tour.getLocation() != null) {
@@ -177,4 +159,6 @@ public class TourService {
         logger.info("Tour updated successfully with ID: " + savedTour.getId());
         return savedTour;
     }
+
+
 }

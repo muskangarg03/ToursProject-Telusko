@@ -167,4 +167,12 @@ public class BookingService {
 
         return bookingRepository.filterTours(country, lodgingType, transportType, minPrice, maxPrice);
     }
+
+    //To delete associated bookings, if any tour gets delete
+    public void deleteBookingsByTourId(Long tourId) {
+        logger.info("Deleting all bookings for Tour ID: {}", tourId);
+        List<Booking> bookings = bookingRepository.findByTourId(tourId);
+        bookingRepository.deleteAll(bookings);
+        logger.info("Successfully deleted {} bookings for Tour ID: {}", bookings.size(), tourId);
+    }
 }
