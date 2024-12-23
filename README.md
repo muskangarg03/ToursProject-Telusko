@@ -43,7 +43,6 @@ A platform to streamline tour management for administrators and provide customer
 * [![React][React.js]][React-url]
 * [![Redux][Redux.js]][Redux-url]
 * [![Tailwind CSS][TailwindCSS.io]][TailwindCSS-url]
-* [![React Router][ReactRouter.io]][ReactRouter-url]
 
 ### Database
 * [![PostgreSQL][PostgreSQL.io]][PostgreSQL-url]
@@ -61,6 +60,50 @@ A platform to streamline tour management for administrators and provide customer
 ### API Testing Tools
 * [![Postman][Postman.io]][Postman-url]
 
+[SpringBoot.io]: https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white
+[SpringBoot-url]: https://spring.io/projects/spring-boot
+
+[Spring.io]: https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white
+[Spring-url]: https://spring.io/projects/spring-framework
+
+[OAuth2.io]: https://img.shields.io/badge/OAuth2-3b5998?style=for-the-badge&logo=oauth&logoColor=white
+[OAuth2-url]: https://oauth.net/2/
+
+[Swagger.io]: https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black
+[Swagger-url]: https://swagger.io/
+
+[Java.io]: https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white
+[Java-url]: https://www.java.com/
+
+[JavaScript.io]: https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black
+[JavaScript-url]: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
+
+[Redux.js]: https://img.shields.io/badge/Redux-764ABC?style=for-the-badge&logo=redux&logoColor=white
+[Redux-url]: https://redux.js.org/
+
+[TailwindCSS.io]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
+[TailwindCSS-url]: https://tailwindcss.com/
+
+[PostgreSQL.io]: https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white
+[PostgreSQL-url]: https://www.postgresql.org/
+
+[Cloudinary.io]: https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white
+[Cloudinary-url]: https://cloudinary.com/
+
+[Stripe.dev]: https://img.shields.io/badge/Stripe-008CDD?style=for-the-badge&logo=stripe&logoColor=white
+[Stripe-url]: https://stripe.com/
+
+[Git.io]: https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white
+[Git-url]: https://git-scm.com/
+
+[GitHub.com]: https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white
+[GitHub-url]: https://github.com/
+
+[Postman.io]: https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white
+[Postman-url]: https://www.postman.com/
 
 ## Installation
 ### **Clone the Repository**
