@@ -29,35 +29,35 @@ A platform to streamline tour management for administrators and provide customer
 
 ## Technologies Used
 
-### Backend Frameworks
+#### Backend Frameworks
 * [![Spring Boot][SpringBoot.io]][SpringBoot-url]
 * [![Spring][Spring.io]][Spring-url]
 * [![OAuth2][OAuth2.io]][OAuth2-url]
 * [![Swagger][Swagger.io]][Swagger-url]
 
-### Programming Languages
+#### Programming Languages
 * [![Java][Java.io]][Java-url]
 * [![JavaScript][JavaScript.io]][JavaScript-url]
 
-### Frontend
+#### Frontend
 * [![React][React.js]][React-url]
 * [![Redux][Redux.js]][Redux-url]
 * [![Tailwind CSS][TailwindCSS.io]][TailwindCSS-url]
 
-### Database
+#### Database
 * [![PostgreSQL][PostgreSQL.io]][PostgreSQL-url]
 
-### Cloud Services
+#### Cloud Services
 * [![Cloudinary][Cloudinary.io]][Cloudinary-url]
 
-### Payment Gateway
+#### Payment Gateway
 * [![Stripe][Stripe.dev]][Stripe-url]
 
-### Version Control System
+#### Version Control System
 * [![Git][Git.io]][Git-url]
 * [![GitHub][GitHub.com]][GitHub-url]
 
-### API Testing Tools
+#### API Testing Tools
 * [![Postman][Postman.io]][Postman-url]
 
 [SpringBoot.io]: https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white
@@ -104,6 +104,22 @@ A platform to streamline tour management for administrators and provide customer
 
 [Postman.io]: https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white
 [Postman-url]: https://www.postman.com/
+
+
+## Dependencies Used
+
+| **Dependency**                        | **Dependency**                          |
+|-----------------------------          |----------------------------------       |
+| - spring-boot-starter-web             | - spring-boot-starter-security          |
+| - spring-boot-starter-data-jpa        | - jjwt-api                              |
+| - postgresql                          | - jjwt-impl                             |
+| - hibernate-validator                 | - jjwt-jackson                          |
+| - lombok                              | - spring-boot-starter-oauth2-client     |
+| - spring-boot-starter-logging         | - cloudinary-http5                      |
+| - springdoc-openapi-starter-webmvc-ui | - stripe-java                           |
+| - spring-boot-devtools                | - spring-boot-starter-test              |
+
+
 
 ## Installation
 ### **Clone the Repository**
@@ -165,7 +181,7 @@ A platform to streamline tour management for administrators and provide customer
   1. **Create Account**:  
   Sign up or log in at Cloudinary.
   2. **Retrieve Credentials**:  
-  From the dashboard, copy Cloud Name, API Key, API Secret.
+  From the dashboard, copy Cloud Name, API Key, and API Secret.
   
   ```
   cloudinary.cloud-name= your_cloud-name
@@ -241,6 +257,10 @@ A platform to streamline tour management for administrators and provide customer
     - Fully responsive UI adaptable to different screen sizes and devices.
     - Ensures optimal user experience across desktop, tablet, and mobile devices.
 
+      
+## Swagger Documentation
+Open Swagger UI to explore API documentation.
+http://localhost:8080/swagger-ui/index.html#/
 
 
   
