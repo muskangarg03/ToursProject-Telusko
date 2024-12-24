@@ -54,8 +54,12 @@ A platform to streamline tour management for administrators and provide customer
 
 ### Functional Features
 #### **1. Security and Authentication**  
-- Role-based access with Spring Security and OAuth2 (JWT).  
-- Encrypted passwords and restricted data access based on user roles.  
+- Role-based access with Spring Security and OAuth2.  
+- Encrypted passwords and restricted data access based on user roles.
+- JWT (JSON Web Token) is generated upon successful authentication:
+  - The token is sent to the client in the response.
+  - The client includes the JWT in the `Authorization` header (e.g., `Bearer <token>`) for subsequent requests.
+  - The server validates the JWT to authorize access to protected resources based on roles.  
 #### **2. User Experience**  
 - Responsive design with dynamic page titles and clean URLs.  
 - Search and filter options for location, lodging, transport, and price.  
@@ -86,7 +90,7 @@ A platform to streamline tour management for administrators and provide customer
 #### Backend Frameworks
 * [![Spring Boot][SpringBoot.io]][SpringBoot-url]
 * [![Spring][Spring.io]][Spring-url]
-* [![OAuth2][OAuth2.io]][OAuth2-url]
+* [![OAuth2][OAuth2.io]][OAuth2-url] + [![JWT][JWT.io]][JWT-url]  
 * [![Swagger][Swagger.io]][Swagger-url]
 
 #### Programming Languages
@@ -122,6 +126,9 @@ A platform to streamline tour management for administrators and provide customer
 
 [OAuth2.io]: https://img.shields.io/badge/OAuth2-3b5998?style=for-the-badge&logo=oauth&logoColor=white
 [OAuth2-url]: https://oauth.net/2/
+
+[JWT.io]: https://img.shields.io/badge/JWT-JSON%20Web%20Token-blue?style=for-the-badge&logo=json-web-tokens&logoColor=white
+[JWT-url]: https://jwt.io/
 
 [Swagger.io]: https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black
 [Swagger-url]: https://swagger.io/
