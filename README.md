@@ -1,7 +1,41 @@
-# Tours & Travels Management System  
+
+   
+   <a href="https://docs.google.com/document/d/144co9yDRkcmQIlzcOYuUG-_2vi0Y3yRyDH8-a75mLT0/edit?tab=t.0">View Documentation</a>
+    ·
+    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    ·
+    <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+
+
+# Tours & Travels Management System
 
 A platform to streamline tour management for administrators and provide customers with an intuitive interface to explore and book travel plans. The system ensures secure and efficient data handling for destinations, lodging, transport, and bookings.  
 
+
+
+## Table of Contents
+- [Project UI](#project-ui)
+- [Features](#features)
+  - [User Module](#user-modules)
+  - [Functional Features](#functional-features)
+- [Technologies Used](#technologies-used)
+- [Dependencies Used](#dependencies-used)
+- [Installation](#installation)
+  - [Backend Installation with IntelliJ IDEA](#backend-installation-with-intellij-idea)
+  - [Frontend Installation With VS Code](#frontend-installation-with-vs-code)
+- [Swagger Documentation](#swagger-documentation)
+- [Postman APIs](#postman-apis)
+
+
+
+## Project UI
+![1](https://github.com/user-attachments/assets/37c260bb-4212-415d-b2a0-0c4b0dc123d0)
+
+![2](https://github.com/user-attachments/assets/fa257e38-6d46-454e-82c7-2765ea3c3ed4)
+
+![3](https://github.com/user-attachments/assets/fa6830ed-7fc1-479d-8fe1-d14ceaf65987)
+
+  
 
 ## Features  
 
@@ -18,13 +52,33 @@ A platform to streamline tour management for administrators and provide customer
 - **Tour Exploration**: Browse tours with filters (e.g., location, price, lodging, transport).  
 - **Tour Booking**: Check availability, confirm bookings, and process payments.  
 
-### Functional Modules  
-#### - **User Authentication (Role-Based Access)**  
-#### - **Location Module**  
-#### - **Lodging Module**  
-#### - **Transport Module**  
-#### - **Tour Module**  
-#### - **Tour Booking Module**  
+### Functional Features
+#### **1. Security and Authentication**  
+- Role-based access with Spring Security and OAuth2 (JWT).  
+- Encrypted passwords and restricted data access based on user roles.  
+#### **2. User Experience**  
+- Responsive design with dynamic page titles and clean URLs.  
+- Search and filter options for location, lodging, transport, and price.  
+- Intuitive navigation with active, clickable links.  
+#### **3. Data Management**  
+- Robust validations and automated image deletion.  
+- Clear relationships between tours, bookings, and associated entities (locations, lodging, transport).  
+#### **4. Admin Capabilities**  
+- Real-time dashboard for monitoring sales, bookings, and tour availability.  
+#### **5. Payment and Transactions**  
+- Secure payment handling with Stripe.  
+#### **6. API and Logging**  
+- Swagger for interactive API documentation.  
+- Structured logging with SLF4J and Logback for monitoring and debugging.  
+#### **7. Image Management**  
+- Cloudinary integration for efficient image upload and storage.  
+#### **8. Development Enhancements**  
+- **Lombok Integration**: Simplifies code by reducing boilerplate for getters, setters, and constructors.  
+- **Custom Exceptions**: Ensures precise error handling and user-friendly feedback across all modules.
+#### **9. WhatsApp Integration**
+- Integration with the WhatsApp API for seamless communication.
+- Allows users to send messages directly from the application.
+
 
 
 ## Technologies Used
@@ -203,7 +257,7 @@ A platform to streamline tour management for administrators and provide customer
   stripe.publishable.key= your-publishable-key
   ```
 
-### 3. Run the Application
+   #### 3. Run the Application
    - In IntelliJ, navigate to the ToursAndTravelsApplication class.
    - Right-click the class and select Run.
    - Backend application will run at the URL : http://localhost:8080.
@@ -227,40 +281,16 @@ A platform to streamline tour management for administrators and provide customer
    Most likely, your Vite project will run on port `5173`. Click on the `https://localhost:5173` URL to open your project in the browser.
 
 
-### **Frontend Features**
-
-1. **Role-Based Access and Functionality**
-    - Implementation of route protection and dynamic rendering of components based on user roles (e.g., Admin, User).
-    - Each role has specific access permissions to designated pages and functionalities.
-    - Non-authorized users are restricted from accessing or performing unauthorized actions.
-
-2. **Light and Dark Mode**
-    - Login and Signup pages feature a toggle for light and dark themes.
-
-3. **Loader During API Fetch**
-    - Displays a spinner or progress indicator during API calls.
-    - Enhances user experience by informing users of ongoing processes.
-
-4. **Redux for State Management**
-    - Utilizes Redux to manage application state.
-    - Uses `useDispatch` for dispatching actions, ensuring a predictable state management flow.
-
-5. **WhatsApp Integration**
-    - Integration with the WhatsApp API for seamless communication.
-    - Allows users to send messages directly from the application.
-
-6. **Tailwind CSS for Modern Styling**
-    - Adoption of Tailwind CSS for consistent and modern UI design.
-    - Simplifies responsive styling with utility-first CSS classes.
-
-7. **Responsive Design**
-    - Fully responsive UI adaptable to different screen sizes and devices.
-    - Ensures optimal user experience across desktop, tablet, and mobile devices.
-
       
 ## Swagger Documentation
-Open Swagger UI to explore API documentation.
+Open Swagger UI to explore API documentation. <br>
 http://localhost:8080/swagger-ui/index.html#/
+
+
+
+## Postman APIs
+Open Postman and test the APIs. <br>
+https://teluskotoursproject.postman.co/workspace/27b211b1-7de4-4207-ab26-f61659e3da96/documentation/33063124-66e92c37-6eb2-4bdd-80cd-927289b0d746
 
 
   
