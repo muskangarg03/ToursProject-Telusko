@@ -6,10 +6,15 @@
     ·
     <a href="https://github.com/othneildrew/Best-README-Template/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+
+
 
 # Tours & Travels Management System
 
 A platform to streamline tour management for administrators and provide customers with an intuitive interface to explore and book travel plans. The system ensures secure and efficient data handling for destinations, lodging, transport, and bookings.  
+
 
 
 
@@ -28,12 +33,14 @@ A platform to streamline tour management for administrators and provide customer
 
 
 
+
 ## Project UI
 ![1](https://github.com/user-attachments/assets/37c260bb-4212-415d-b2a0-0c4b0dc123d0)
 
 ![2](https://github.com/user-attachments/assets/fa257e38-6d46-454e-82c7-2765ea3c3ed4)
 
 ![3](https://github.com/user-attachments/assets/fa6830ed-7fc1-479d-8fe1-d14ceaf65987)
+
 
   
 
@@ -51,6 +58,7 @@ A platform to streamline tour management for administrators and provide customer
 - **Registration/Login**: Register or log in to access personalized features.  
 - **Tour Exploration**: Browse tours with filters (e.g., location, price, lodging, transport).  
 - **Tour Booking**: Check availability, confirm bookings, and process payments.  
+
 
 ### Functional Features
 #### **1. Security and Authentication**  
@@ -82,6 +90,7 @@ A platform to streamline tour management for administrators and provide customer
 #### **9. WhatsApp Integration**
 - Integration with the WhatsApp API for seamless communication.
 - Allows users to send messages directly from the application.
+
 
 
 
@@ -167,6 +176,8 @@ A platform to streamline tour management for administrators and provide customer
 [Postman-url]: https://www.postman.com/
 
 
+
+
 ## Dependencies Used
 
 | **Dependency**                        | **Dependency**                          |
@@ -179,6 +190,7 @@ A platform to streamline tour management for administrators and provide customer
 | - spring-boot-starter-logging         | - cloudinary-http5                      |
 | - springdoc-openapi-starter-webmvc-ui | - stripe-java                           |
 | - spring-boot-devtools                | - spring-boot-starter-test              |
+
 
 
 
@@ -236,7 +248,6 @@ A platform to streamline tour management for administrators and provide customer
   spring.security.oauth2.client.registration.google.redirect-uri= http://localhost:8080/login/oauth2/code/google
   ```
 
-
   #### Cloudinary Configuration
   Steps to Generate Keys and Credentials:
   1. **Create Account**:  
@@ -264,7 +275,7 @@ A platform to streamline tour management for administrators and provide customer
   stripe.publishable.key= your-publishable-key
   ```
 
-   #### 3. Run the Application
+### 3. Run the Application
    - In IntelliJ, navigate to the ToursAndTravelsApplication class.
    - Right-click the class and select Run.
    - Backend application will run at the URL : http://localhost:8080.
@@ -288,10 +299,12 @@ A platform to streamline tour management for administrators and provide customer
    Most likely, your Vite project will run on port `5173`. Click on the `https://localhost:5173` URL to open your project in the browser.
 
 
+
       
 ## Swagger Documentation
 Open Swagger UI to explore API documentation. <br>
 http://localhost:8080/swagger-ui/index.html#/
+
 
 
 
